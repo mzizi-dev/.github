@@ -1,0 +1,20 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/mzizi-dev/mzizi/security/advisories/new
+    about: >
+      Report privately. Never open a public issue for a vulnerability. This
+      link goes to the `mzizi` repo because private reporting is enabled
+      there; see SECURITY.md for which other repos accept it today.
+  - name: Documentation
+    url: https://docs.mzizi.dev
+    about: The Mzizi framework docs — language reference, runtime guides, agent surfaces.
+  - name: Component registry
+    url: https://mzizi.dev
+    about: Components, design tokens, and the registry API.
+  - name: Org standards, CI and governance
+    url: https://github.com/mzizi-dev/.github/blob/main/ORG_STANDARDS.md
+    about: What CI actually runs in each repo today, and the known gaps.
+  - name: Contributing
+    url: https://github.com/mzizi-dev/.github/blob/main/CONTRIBUTING.md
+    about: How to open a PR here, including why this org is merge-only.

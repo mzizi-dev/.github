@@ -1,0 +1,75 @@
+{
+  "_comment": [
+    "Org-wide protection for every repo's default branch in mzizi-dev.",
+    "",
+    "NOT APPLIED. As of 2026-09-11 `GET /orgs/mzizi-dev/rulesets` returns an",
+    "empty array and no repo has classic branch protection. This file is a",
+    "reviewable proposal; applying it changes what can merge across nine",
+    "repos and is a human decision. Apply with:",
+    "",
+    "  gh api -X POST orgs/mzizi-dev/rulesets --input org-wide-main-protection.json",
+    "",
+    "Four choices worth understanding before applying:",
+    "",
+    "1. allowed_merge_methods is [\"merge\"], NOT [\"squash\"]. This org is",
+    "   merge-only by deliberate convention: mzizi/MIGRATION.md 1.1 says",
+    "   \"Squash discards the per-commit reasoning this project depends on\".",
+    "   All nine repos already have allow_squash_merge and",
+    "   allow_rebase_merge set to false; this makes the same rule a gate",
+    "   rather than only a hidden button.",
+    "",
+    "2. There is deliberately NO required_linear_history rule. That rule",
+    "   blocks merge commits, and a merge commit is the ONLY merge this org",
+    "   permits — the two together would make every PR unmergeable. This is",
+    "   not hypothetical: mzizi-registry's existing repo-level ruleset",
+    "   (\"Default\", id 14801708) has exactly that combination today and",
+    "   should be corrected. See ORG_STANDARDS.md, Known gaps.",
+    "",
+    "3. required_approving_review_count is 0. The org has two members but",
+    "   effectively one active reviewer; a count of 1 would make every PR",
+    "   unmergeable by its own author, which is a lockout, not a safeguard.",
+    "   The pull_request rule still forces changes through a PR. Raise this",
+    "   to 1 once a second maintainer is reviewing regularly.",
+    "",
+    "4. required_signatures is included. It is the rule most likely to",
+    "   surprise: an unsigned commit is rejected outright, including one",
+    "   made by a tool that is not configured to sign. Confirm every author",
+    "   and every bot in the org signs before applying, or drop this rule",
+    "   in the first pass and add it separately.",
+    "",
+    "required_status_checks is deliberately absent. Naming a check context",
+    "that has never reported makes every PR permanently unmergeable. Add",
+    "contexts per repo only after reading the exact job names off a",
+    "completed run — see ORG_STANDARDS.md for the names CI emits today."
+  ],
+  "name": "org-wide-main-protection",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] },
+    "repository_name": { "include": ["~ALL"], "exclude": [] }
+  },
+  "bypass_actors": [
+    {
+      "actor_id": 1,
+      "actor_type": "OrganizationAdmin",
+      "bypass_mode": "always"
+    }
+  ],
+  "rules": [
+    { "type": "deletion" },
+    { "type": "non_fast_forward" },
+    { "type": "required_signatures" },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 0,
+        "dismiss_stale_reviews_on_push": true,
+        "require_code_owner_review": false,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": true,
+        "allowed_merge_methods": ["merge"]
+      }
+    }
+  ]
+}

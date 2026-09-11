@@ -1,0 +1,22 @@
+# Conventional Commits on the PR title, for this repo.
+#
+# Calls this repo's own reusable by LOCAL path so a change to it is tested by
+# the PR that makes the change.
+
+name: PR title
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  pull-requests: read
+  statuses: write
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  pr-title:
+    uses: ./.github/workflows/reusable-pr-title-lint.yml

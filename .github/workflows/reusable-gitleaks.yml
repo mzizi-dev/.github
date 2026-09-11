@@ -1,0 +1,87 @@
+# Reusable workflow: secret scanning with gitleaks.
+#
+#   jobs:
+#     secrets:
+#       uses: mzizi-dev/.github/.github/workflows/reusable-gitleaks.yml@main
+#
+# ---------------------------------------------------------------------------
+# Why the binary and not the action
+# ---------------------------------------------------------------------------
+# `gitleaks/gitleaks-action` requires a paid licence for organisation repos.
+# The underlying gitleaks binary is MIT-licensed (verified 2026-09-11 against
+# the gitleaks/gitleaks repo metadata), so this downloads and runs it
+# directly. Same scan, no licence dependency, no third-party action in the
+# trust path. Do not "simplify" this back to the action.
+#
+# ---------------------------------------------------------------------------
+# Why full history by default
+# ---------------------------------------------------------------------------
+# A leaked key stays leaked once it is in a commit, whether or not that commit
+# is the tip. `fetch-depth: 0` scans the whole history. This matters more than
+# usual here: `mzizi-dev/mzizi` was produced by `git subtree split` out of
+# another repository, so its commits arrived under this org's CI for the first
+# time all at once — a tip-only scan would have said nothing about any of
+# them.
+
+name: Reusable / Secret scan
+
+on:
+  workflow_call:
+    inputs:
+      gitleaks-version:
+        description: >
+          gitleaks release to download, without the leading `v`. The default
+          matches what every repo in this org runs today, so adopting this
+          workflow changes no behaviour. 8.30.1 was the latest release as of
+          2026-09-11; bumping is a deliberate per-repo decision, because a
+          newer ruleset can surface findings in history that were previously
+          clean and turn adoption into a triage session.
+        type: string
+        default: "8.21.2"
+      fetch-depth:
+        description: 0 scans the full history. 1 scans only the checked-out tree.
+        type: number
+        default: 0
+      config-path:
+        description: >
+          Path to a .gitleaks.toml. Empty lets gitleaks find its own default
+          (a `.gitleaks.toml` at the repo root is picked up automatically).
+        type: string
+        default: ""
+      timeout-minutes:
+        type: number
+        default: 10
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
+      - name: Install gitleaks
+        env:
+          VERSION: ${{ inputs.gitleaks-version }}
+        run: |
+          set -euo pipefail
+          curl -sSL --fail -o /tmp/gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz"
+          sudo tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin gitleaks
+          gitleaks version
+
+      - name: Scan repository
+        env:
+          CONFIG: ${{ inputs.config-path }}
+        run: |
+          set -euo pipefail
+          args=(detect --source . --redact --no-banner --verbose)
+          if [ -n "$CONFIG" ]; then
+            args+=(--config "$CONFIG")
+          fi
+          gitleaks "${args[@]}"

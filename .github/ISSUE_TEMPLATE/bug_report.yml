@@ -1,0 +1,87 @@
+name: Bug report
+description: Something behaves differently from what the docs, the charter or the code claim.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Do not use this form for a security vulnerability. Report those
+        privately — see the "Security vulnerability" link on the previous
+        screen, or SECURITY.md.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - mzizi — the language, compiler or `mz` CLI
+        - mzizi-registry — the component registry / mzizi.dev
+        - mzizi-console — app.mzizi.dev (Astro + Dioxus WASM)
+        - mzizi-api-gateway — api.mzizi.dev (workers-rs)
+        - mzizi-site — mzizi.dev
+        - mzizi-docs — docs.mzizi.dev
+        - agent-tools — MCP server, fundi, CLI, skills
+        - org / CI / governance
+        - other or not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: >
+        Paste the exact error text, compiler diagnostic or response body.
+        Redact any key or token — this is a public issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+      description: And, if you can, what made you expect it — a doc line, a charter claim, a type signature.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. cargo run --bin mz -- check examples/connectivity_bar.mz
+        2. ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: >
+        The git SHA you are on, or the released version. "main" on its own is
+        not enough — main moves.
+      placeholder: e.g. 5404607, or mz 0.1.0
+    validations:
+      required: false
+
+  - type: input
+    id: toolchain
+    attributes:
+      label: Rust toolchain and target
+      description: >
+        Output of `rustc -vV`, plus the target if it is not the host. A bug
+        that only appears on wasm32-unknown-unknown is a different bug from
+        one that appears natively, and the distinction is usually the whole
+        answer.
+      placeholder: e.g. rustc 1.90.0 (stable), target wasm32-unknown-unknown
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: hygiene
+    attributes:
+      label: Before you submit
+      options:
+        - label: This report contains no API key, token or credential.
+          required: true

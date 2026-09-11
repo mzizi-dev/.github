@@ -1,63 +1,40 @@
-# Org-wide default owners.
+# Code owners for THIS repository.
 #
-# GitHub falls back to this file for any repo in `mzizi-dev` that does not
-# ship its own `.github/CODEOWNERS`. Today that is EVERY repo except
-# `mzizi-registry` — and that repo's own file is broken (see the note at the
-# bottom), so in practice nothing in this org has working review routing
-# until this file lands.
+# SCOPE — read this before assuming it does more than it does.
+# CODEOWNERS is NOT one of the files an organisation's `.github` repo can
+# supply as an org-wide default. GitHub's list of inheritable community
+# health files is CODE_OF_CONDUCT.md, CONTRIBUTING.md, discussion category
+# forms, FUNDING.yml, issue and PR templates, SECURITY.md and SUPPORT.md —
+# CODEOWNERS is absent from it, and the CODEOWNERS docs say the file is read
+# from `.github/`, the root, or `docs/` "of the repository". So this file
+# governs `mzizi-dev/.github` and nothing else.
+#
+# To get review routing in another repo, COPY `CODEOWNERS.example` from the
+# root of this repo into that repo's own `.github/CODEOWNERS`. There is no
+# way to do it centrally.
 #
 # The org has two members: @bryanfawcett (admin) and @michellellawson
 # (member). There are no teams, so owners are named as users. A team handle
-# here would resolve to nobody and CODEOWNERS would silently do nothing —
-# which is exactly the failure `mzizi-registry` is in.
+# would resolve to nobody and CODEOWNERS would silently do nothing — which is
+# exactly the state `mzizi-registry` is in (ORG_STANDARDS.md, gap 1).
 #
-# GitHub applies the LAST matching pattern, so the catch-all must stay at the
-# top. Add narrower rules BELOW it, never above.
+# GitHub applies the LAST matching pattern, so the catch-all stays at the top.
+# Add narrower rules BELOW it, never above.
 
 *                       @bryanfawcett
 
 # ---------------------------------------------------------------------------
-# Narrower rules
+# Narrower rules — paths that exist in THIS repo
 # ---------------------------------------------------------------------------
-# These paths are named individually because they are the ones where an
-# unreviewed change is expensive, not because they are the ones that change
-# most. Paths are matched against the repo the PR is opened in, so a pattern
-# that does not exist in a given repo simply never matches there.
 
-# The compiler and the primitive corpus in `mzizi-dev/mzizi`. Bundu
-# Foundation IP, and the artefact every other repo is downstream of.
-/compiler/              @bryanfawcett
-/primitives/            @bryanfawcett
-/examples/              @bryanfawcett
-
-# The charter and the migration plan are the two documents that decide what
-# this project is. They should not drift by accident.
-/CHARTER.md             @bryanfawcett
-/MIGRATION.md           @bryanfawcett
-
-# Anything that changes what CI runs, or what may merge. A PR that edits its
-# own gate should be read by a human before it lands.
+# The reusable workflows other repos will call. A change here changes CI in
+# every repo that has adopted one, from a PR in a repo they do not watch.
 /.github/workflows/     @bryanfawcett
-/.github/CODEOWNERS     @bryanfawcett
+
+# Ruleset definitions. These decide what may merge across nine repos once
+# applied.
 /github-rulesets/       @bryanfawcett
 
-# Deployment configuration for the two Workers (`mzizi-api-gateway`,
-# `mzizi-console`). `wrangler.jsonc` carries the custom-domain routes; a
-# wrong edit here takes a hostname down rather than failing a build.
-/wrangler.jsonc         @bryanfawcett
-
-# Secrets policy and the allowlist that decides what gitleaks ignores.
-/.gitleaks.toml         @bryanfawcett
+# The org's factual record and the security policy every repo inherits.
+/ORG_STANDARDS.md       @bryanfawcett
 /SECURITY.md            @bryanfawcett
-
-# ---------------------------------------------------------------------------
-# Known defect this file does NOT fix
-# ---------------------------------------------------------------------------
-# `mzizi-dev/mzizi-registry` ships its own `.github/CODEOWNERS`, which takes
-# precedence over this one for that repo. Every rule in it names
-# `@nyuchi/core` — a team in the `nyuchi` org, not this one. Verified
-# 2026-09-11: the `nyuchi` org's teams are docs, maintainers, marketing,
-# mukoko, nyuchi-open-projects, platform and security. There is no `core`
-# team, and a team from another org cannot own code here in any case. That
-# file therefore assigns no reviewers at all. Fixing it is a PR against
-# `mzizi-registry`, not this repo — see ORG_STANDARDS.md, "Known gaps".

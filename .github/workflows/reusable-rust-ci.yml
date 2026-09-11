@@ -132,10 +132,16 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         env:
           EXTRA: ${{ inputs.test-args }}
-        # Unquoted on purpose: EXTRA is a caller-supplied argument list and
-        # must word-split. It comes from the calling workflow file, not from
-        # PR-controlled input.
-        run: cargo test $EXTRA
+        # `test-args` is an argument LIST, so it has to word-split — but
+        # `cargo test $EXTRA` unquoted also glob-expands, and shellcheck is
+        # right to flag it (SC2086). Splitting into an array does the one
+        # thing that is wanted and not the one that is not. An empty EXTRA
+        # yields an empty array, and `"${extra[@]}"` on an empty array is
+        # safe under `set -u` in bash 4.4+ — ubuntu-latest ships bash 5.
+        run: |
+          set -euo pipefail
+          read -ra extra <<< "$EXTRA"
+          cargo test "${extra[@]}"
 
       # The step that catches what a host build cannot. Runs last so a
       # formatting or lint failure is reported before the slower compile.

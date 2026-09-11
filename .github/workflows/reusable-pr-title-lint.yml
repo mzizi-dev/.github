@@ -1,0 +1,89 @@
+# Reusable workflow: PR title lint (Conventional Commits).
+#
+#   on:
+#     pull_request:
+#       types: [opened, edited, reopened, synchronize]
+#   jobs:
+#     pr-title:
+#       uses: mzizi-dev/.github/.github/workflows/reusable-pr-title-lint.yml@main
+#
+# ---------------------------------------------------------------------------
+# What this does and does not claim, in a merge-only org
+# ---------------------------------------------------------------------------
+# In a squash-merge org, linting the PR title is really linting the commit
+# subject that lands on main. mzizi-dev does not squash — squash and rebase
+# merging are disabled on all nine repos, because "squash discards the
+# per-commit reasoning this project depends on" (mzizi/MIGRATION.md §1.1).
+#
+# So be precise about what this gate is worth here. Every repo is set to
+# merge_commit_title=MERGE_MESSAGE and merge_commit_message=PR_TITLE
+# (verified across all nine, 2026-09-11), which means the merge commit reads:
+#
+#   Merge pull request #12 from mzizi-dev/claude/org-defaults
+#
+#   feat(ci): add the rust reusable workflow
+#
+# The PR title is the merge commit BODY, and it is the one line that
+# summarises the whole branch in `git log --first-parent`. Your individual
+# commits keep their own messages untouched — that is the point of merge-only,
+# and this check does not inspect them.
+#
+# The allowed types track CONTRIBUTING.md. Change both together.
+
+name: Reusable / PR title lint
+
+on:
+  workflow_call:
+    inputs:
+      require-scope:
+        description: If true, a scope like `feat(compiler):` is required.
+        type: boolean
+        default: false
+
+permissions:
+  pull-requests: read
+  statuses: write
+
+jobs:
+  lint:
+    name: Conventional Commits
+    # Bot PR titles are skipped rather than accommodated. Dependabot titles
+    # its PRs "ci: Bump actions/checkout from 5 to 7" — capital B, which
+    # subjectPattern rejects, and it offers no setting to lowercase that word
+    # (commit-message.prefix controls only the prefix). Relaxing the pattern
+    # to permit uppercase would weaken it for humans too. Add other bots to
+    # this list rather than loosening the regex.
+    if: >-
+      ${{ github.event.pull_request.user.login != 'dependabot[bot]'
+          && github.event.pull_request.user.login != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      # Third-party action, pinned by commit SHA rather than tag: a tag can be
+      # moved to point at different code, a SHA cannot. This SHA is v6.1.1,
+      # which is also what the floating `v6` tag pointed at on 2026-09-11.
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            perf
+            refactor
+            docs
+            test
+            build
+            ci
+            chore
+            revert
+            style
+          requireScope: ${{ inputs.require-scope }}
+          subjectPattern: '^(?![A-Z])(?!.*\.$).+$'
+          subjectPatternError: >-
+            The subject "{subject}" is invalid for the "{type}" type: start it
+            lowercase, write it as an imperative ("add", not "adds"/"added"),
+            and do not end it with a period.
+          # Exempts titles literally starting with "wip" (case insensitive).
+          # This is NOT the same as GitHub's draft flag: a draft PR with an
+          # ordinary title still gets checked and can still fail.
+          wip: true

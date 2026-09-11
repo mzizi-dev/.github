@@ -1,0 +1,81 @@
+# CI for this repo.
+#
+# It also dogfoods what this repo publishes: the `secrets` job calls
+# `reusable-gitleaks.yml` by LOCAL path (`uses: ./...`) rather than by
+# `@main`. A local reference resolves against the commit under test, so the
+# reusable workflow is exercised on the PR that changes it — a `@main`
+# reference would run the already-merged copy and tell you nothing.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    # Not just main. Stacked pull requests target the branch below them in
+    # the stack, and a filter of [main] silently gives every layer but the
+    # bottom one zero checks — a green PR with nothing run looks identical to
+    # a passing one.
+    branches: [main, "claude/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      # The prebuilt binary straight from the upstream release — no
+      # third-party action, no Go toolchain, no install script piped to a
+      # shell.
+      - name: Install and run actionlint
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+        run: |
+          set -euo pipefail
+          curl -fsSL -o actionlint.tar.gz \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          tar -xzf actionlint.tar.gz actionlint
+          chmod +x ./actionlint
+          ./actionlint -color
+
+  rulesets:
+    name: rulesets parse
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      # These files are applied with `gh api --input`. A JSON syntax error
+      # would only surface at the moment someone tries to change what can
+      # merge across nine repos, which is the worst possible time to find it.
+      - name: Every ruleset is valid JSON with the fields the API requires
+        run: |
+          set -euo pipefail
+          for f in github-rulesets/*.json; do
+            echo "checking $f"
+            python3 - "$f" <<'PY'
+          import json, sys
+          path = sys.argv[1]
+          with open(path) as fh:
+              data = json.load(fh)
+          for key in ("name", "target", "enforcement", "conditions", "rules"):
+              if key not in data:
+                  sys.exit(f"{path}: missing required key {key!r}")
+          if data["target"] not in ("branch", "tag", "push"):
+              sys.exit(f"{path}: unexpected target {data['target']!r}")
+          PY
+          done
+
+  secrets:
+    name: secret scan
+    uses: ./.github/workflows/reusable-gitleaks.yml

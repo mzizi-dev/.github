@@ -1,0 +1,60 @@
+name: Feature request
+description: Propose a change in behaviour, a new capability, or a language change.
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - mzizi — the language, compiler or `mz` CLI
+        - mzizi-registry — the component registry / mzizi.dev
+        - mzizi-console — app.mzizi.dev
+        - mzizi-api-gateway — api.mzizi.dev
+        - mzizi-site — mzizi.dev
+        - mzizi-docs — docs.mzizi.dev
+        - agent-tools — MCP server, fundi, CLI, skills
+        - org / CI / governance
+        - other or not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: >
+        What is hard or impossible today? Describe the situation, not the
+        solution. If you already know the solution, it still helps to write
+        the problem down first — it is the part that outlives the proposal.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+    validations:
+      required: true
+
+  - type: textarea
+    id: thesis
+    attributes:
+      label: Fit with the charter
+      description: >
+        Mzizi's stated single sharp edge is "a Rust framework whose syntax,
+        type system, and compiler feedback loop are designed for machine
+        authorship" (mzizi/CHARTER.md §1). Proposals that make the language
+        better for a human typing, at the cost of an agent iterating against
+        the compiler, are the ones that need the most argument. Say which
+        side of that line this falls on.
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Including "do nothing" — say why that is worse.
+    validations:
+      required: false

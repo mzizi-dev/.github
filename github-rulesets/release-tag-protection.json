@@ -1,0 +1,39 @@
+{
+  "_comment": [
+    "Release tags are immutable once pushed. Without this, a v1.2.3 tag can",
+    "be moved to point at different code after the fact, silently",
+    "invalidating anything that pinned it.",
+    "",
+    "NOT APPLIED. Reviewable proposal only. Apply with:",
+    "",
+    "  gh api -X POST orgs/mzizi-dev/rulesets --input release-tag-protection.json",
+    "",
+    "This matters more here than the name suggests. mzizi-dev publishes into",
+    "other people's builds — `agent-tools` publishes the mzizi CLI, MCP",
+    "server and skills to npm, and `mzizi-registry` serves component source",
+    "into downstream production apps. A moved tag in this org is a supply",
+    "chain problem, not a housekeeping one.",
+    "",
+    "The `update` rule is what makes a tag immutable; `non_fast_forward` and",
+    "`deletion` stop the two ways around it."
+  ],
+  "name": "release-tag-protection",
+  "target": "tag",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": { "include": ["refs/tags/v*"], "exclude": [] },
+    "repository_name": { "include": ["~ALL"], "exclude": [] }
+  },
+  "bypass_actors": [
+    {
+      "actor_id": 1,
+      "actor_type": "OrganizationAdmin",
+      "bypass_mode": "always"
+    }
+  ],
+  "rules": [
+    { "type": "deletion" },
+    { "type": "non_fast_forward" },
+    { "type": "update" }
+  ]
+}

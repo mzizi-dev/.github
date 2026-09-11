@@ -16,7 +16,7 @@ written down in `mzizi-dev/mzizi`'s `MIGRATION.md` §1.1:
 So: **your commits land on `main` exactly as you wrote them, and stay there.**
 That changes how you should work.
 
-- Write each commit as a coherent step, with a message that explains *why*.
+- Write each commit as a coherent step, with a message that explains _why_.
   Nobody is going to squash your "wip" and "fix typo" commits away for you.
 - Clean the branch up before requesting review — `git rebase -i` on your own
   branch, not on `main`.

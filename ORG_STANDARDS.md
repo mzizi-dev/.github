@@ -17,17 +17,17 @@ Nine repos. Two members — `@bryanfawcett` (admin) and `@michellellawson`
 (member). **No teams exist**, which is why `.github/CODEOWNERS` names users
 rather than a `@mzizi-dev/...` handle.
 
-| Repo | Public | Stack | State |
-|---|---|---|---|
-| [`mzizi`](https://github.com/mzizi-dev/mzizi) | yes | Rust | The language, compiler and `mz` CLI. Bundu Foundation IP. Has content and CI |
-| [`mzizi-registry`](https://github.com/mzizi-dev/mzizi-registry) | yes | Next.js (+ Rust crates) on Vercel | The component registry and mzizi.dev. The largest repo, and the only one with its own community-health files |
-| [`mzizi-console`](https://github.com/mzizi-dev/mzizi-console) | yes | Astro + Rust/Dioxus WASM islands | app.mzizi.dev. Has content and CI |
-| [`mzizi-api-gateway`](https://github.com/mzizi-dev/mzizi-api-gateway) | yes | Pure-Rust Cloudflare Worker (workers-rs) | api.mzizi.dev. Has content and CI |
-| [`mzizi-site`](https://github.com/mzizi-dev/mzizi-site) | yes | — | **Completely empty** — no commits at all. Not "a README": the API returns "This repository is empty" |
-| [`mzizi-docs`](https://github.com/mzizi-dev/mzizi-docs) | yes | Mintlify (planned) | README and LICENSE only. No `.github/` directory, no CI |
-| [`mzizi-roadmap`](https://github.com/mzizi-dev/mzizi-roadmap) | yes | — | README only. `mzizi`'s own history shows the roadmap being folded into `mzizi/design/ROADMAP.md`, so this repo may be vestigial |
-| [`agent-tools`](https://github.com/mzizi-dev/agent-tools) | **no** | TypeScript / pnpm | MCP server, `fundi` agent, CLI, skills. The most CI of any repo — ten workflows |
-| [`.github`](https://github.com/mzizi-dev/.github) | yes | — | This repo |
+| Repo                                                                  | Public | Stack                                    | State                                                                                                                           |
+| --------------------------------------------------------------------- | ------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| [`mzizi`](https://github.com/mzizi-dev/mzizi)                         | yes    | Rust                                     | The language, compiler and `mz` CLI. Bundu Foundation IP. Has content and CI                                                    |
+| [`mzizi-registry`](https://github.com/mzizi-dev/mzizi-registry)       | yes    | Next.js (+ Rust crates) on Vercel        | The component registry and mzizi.dev. The largest repo, and the only one with its own community-health files                    |
+| [`mzizi-console`](https://github.com/mzizi-dev/mzizi-console)         | yes    | Astro + Rust/Dioxus WASM islands         | app.mzizi.dev. Has content and CI                                                                                               |
+| [`mzizi-api-gateway`](https://github.com/mzizi-dev/mzizi-api-gateway) | yes    | Pure-Rust Cloudflare Worker (workers-rs) | api.mzizi.dev. Has content and CI                                                                                               |
+| [`mzizi-site`](https://github.com/mzizi-dev/mzizi-site)               | yes    | —                                        | **Completely empty** — no commits at all. Not "a README": the API returns "This repository is empty"                            |
+| [`mzizi-docs`](https://github.com/mzizi-dev/mzizi-docs)               | yes    | Mintlify (planned)                       | README and LICENSE only. No `.github/` directory, no CI                                                                         |
+| [`mzizi-roadmap`](https://github.com/mzizi-dev/mzizi-roadmap)         | yes    | —                                        | README only. `mzizi`'s own history shows the roadmap being folded into `mzizi/design/ROADMAP.md`, so this repo may be vestigial |
+| [`agent-tools`](https://github.com/mzizi-dev/agent-tools)             | **no** | TypeScript / pnpm                        | MCP server, `fundi` agent, CLI, skills. The most CI of any repo — ten workflows                                                 |
+| [`.github`](https://github.com/mzizi-dev/.github)                     | yes    | —                                        | This repo                                                                                                                       |
 
 ---
 
@@ -51,7 +51,7 @@ near the tip of `main`.
 Three consequences that are easy to get wrong:
 
 **1. Your commits are permanent, exactly as written.** Nothing folds them
-together. Clean the branch up with an interactive rebase *on your own branch*
+together. Clean the branch up with an interactive rebase _on your own branch_
 before requesting review, and write messages that explain why.
 
 **2. The PR title becomes the merge commit body, not its subject.** Every
@@ -93,11 +93,11 @@ Read from the workflow files in each repo's default branch.
 `ci.yml` triggers on push to `main` and pull requests to `main` **or**
 `claude/**`, with `concurrency` cancelling superseded runs off `main`.
 
-| Job (check name) | What it runs |
-|---|---|
-| `compiler` | `cargo fmt -- --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, all in `compiler/` |
-| `compiler` (cont.) | `mz check ../examples/connectivity_bar.mz`, then `mz check` over **every** file in `primitives/`, using the built binary rather than the test harness |
-| `secret scan` | `gitleaks detect` at `fetch-depth: 0` — full history, because this repo arrived via `git subtree split` and every commit reached CI for the first time at once |
+| Job (check name)   | What it runs                                                                                                                                                   |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `compiler`         | `cargo fmt -- --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`, all in `compiler/`                                                          |
+| `compiler` (cont.) | `mz check ../examples/connectivity_bar.mz`, then `mz check` over **every** file in `primitives/`, using the built binary rather than the test harness          |
+| `secret scan`      | `gitleaks detect` at `fetch-depth: 0` — full history, because this repo arrived via `git subtree split` and every commit reached CI for the first time at once |
 
 `mzizi-lang-benchmark-dispatch.yml` is the second workflow. On push to
 `main` it dispatches to a held-out benchmark runner named by the
@@ -108,24 +108,24 @@ held-out task set is deliberately kept out of the public repo — per
 rather than memorisation". Nothing here checks whether that runner exists.
 
 The `mz check` steps are the interesting part and are worth copying in
-spirit: they assert the *shipped binary* still accepts the corpus, which is a
+spirit: they assert the _shipped binary_ still accepts the corpus, which is a
 different claim from "the tests pass".
 
 ### `mzizi-console` — 1 workflow
 
-| Job | What it runs |
-|---|---|
-| `rust` | fmt, clippy (host), `cargo test`, **and `cargo check --target wasm32-unknown-unknown --all-targets`** |
-| `web` | pnpm 10.33.0, Node 22, `astro check`, `astro build`. The build is what proves the two toolchains compose — the island script references a bundle name derived from the crate name, so a rename that updates one and not the other fails here instead of serving a blank page |
-| `secret scan` | gitleaks, full history |
+| Job           | What it runs                                                                                                                                                                                                                                                                 |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rust`        | fmt, clippy (host), `cargo test`, **and `cargo check --target wasm32-unknown-unknown --all-targets`**                                                                                                                                                                        |
+| `web`         | pnpm 10.33.0, Node 22, `astro check`, `astro build`. The build is what proves the two toolchains compose — the island script references a bundle name derived from the crate name, so a rename that updates one and not the other fails here instead of serving a blank page |
+| `secret scan` | gitleaks, full history                                                                                                                                                                                                                                                       |
 
 ### `mzizi-api-gateway` — 1 workflow
 
-| Job | What it runs |
-|---|---|
-| `rust` | fmt; **clippy against `wasm32-unknown-unknown`**, not the host, because the `worker` crate's API is `cfg`'d for that target; `cargo check --target wasm32-unknown-unknown`; `cargo test` |
+| Job            | What it runs                                                                                                                                                                                                                                                                                                                                                     |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rust`         | fmt; **clippy against `wasm32-unknown-unknown`**, not the host, because the `worker` crate's API is `cfg`'d for that target; `cargo check --target wasm32-unknown-unknown`; `cargo test`                                                                                                                                                                         |
 | `worker build` | `cargo install worker-build --version ^0.8`, `worker-build --release`, then `wrangler@4 deploy --dry-run`. The workflow's own comment records why the version pin is load-bearing: worker-build must track the `worker` dependency's minor line, and a pre-0.7 toolchain hard-codes a wasm-bindgen CLI version that cannot match what the crate compiled against |
-| `secret scan` | gitleaks, full history |
+| `secret scan`  | gitleaks, full history                                                                                                                                                                                                                                                                                                                                           |
 
 ### `mzizi-registry` — 4 workflows
 
@@ -133,20 +133,20 @@ different claim from "the tests pass".
 requires them under those exact strings: **Security Audit**, **Registry
 Snapshot**, **Rust**, **Lint**, **Type Check**, **Test**, **Build**.
 
-`lint.yml` jobs are the opposite convention — names carry a `lint / ` prefix
+`lint.yml` jobs are the opposite convention — names carry a `lint /` prefix
 (`lint / actionlint`, `lint / JSON validity`, `lint / prettier`,
 `lint / markdownlint`, `lint / yamllint`) because GitHub reports the bare
 `name:` field to the Checks API and the UI grouping label is not part of it.
 That asymmetry inside one repo is a live trap; the file itself documents it.
 
 Also present: `release.yml` (auto-release on a version bump) and
-`reusable-ci-vite-plus.yml` — a reusable workflow that lives in the *registry*
+`reusable-ci-vite-plus.yml` — a reusable workflow that lives in the _registry_
 repo rather than here. Its header explains why, and the reason is now stale:
 see gap 7.
 
 Both `ci.yml` and `lint.yml` carry a `workflow_dispatch` trigger added after
-an incident on 2026-08-26 where neither workflow produced any run for PR
-#265 and there was no way to trigger them manually.
+an incident on 2026-08-26 where neither workflow produced any run for
+PR `#265` and there was no way to trigger them manually.
 
 Note the trigger difference: `mzizi-registry`'s workflows filter pull requests
 on `[main]` only, while the three Rust repos use `[main, "claude/**"]`.
@@ -181,7 +181,7 @@ conditional compilation, a host-only dependency, `std` surface that does not
 exist on wasm32. A green native `cargo check` is not evidence about the
 artefact.
 
-Both repos already handle this, and they handle it *differently*, correctly:
+Both repos already handle this, and they handle it _differently_, correctly:
 
 - `mzizi-console` lints on the host and adds
   `cargo check --target wasm32-unknown-unknown --all-targets`.
@@ -204,22 +204,22 @@ A reusable workflow is a `.yml` under `.github/workflows/` with
 
 As of 2026-09-11 this repo publishes three:
 
-| Workflow | Purpose | Notes |
-|---|---|---|
-| `reusable-rust-ci.yml` | fmt / clippy / test / cross-target check | `target` and `clippy-on-target` inputs cover the WASM trap above. `working-directory` covers `mzizi`, whose crate lives in `compiler/` |
-| `reusable-gitleaks.yml` | Secret scan | Runs the MIT binary directly, **not** `gitleaks/gitleaks-action`, which requires a paid licence for org repos. Defaults to gitleaks 8.21.2 — the version every repo already runs, so adoption changes no behaviour |
-| `reusable-pr-title-lint.yml` | Conventional Commits on the PR title | `amannn/action-semantic-pull-request` pinned by commit SHA |
+| Workflow                     | Purpose                                  | Notes                                                                                                                                                                                                              |
+| ---------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `reusable-rust-ci.yml`       | fmt / clippy / test / cross-target check | `target` and `clippy-on-target` inputs cover the WASM trap above. `working-directory` covers `mzizi`, whose crate lives in `compiler/`                                                                             |
+| `reusable-gitleaks.yml`      | Secret scan                              | Runs the MIT binary directly, **not** `gitleaks/gitleaks-action`, which requires a paid licence for org repos. Defaults to gitleaks 8.21.2 — the version every repo already runs, so adoption changes no behaviour |
+| `reusable-pr-title-lint.yml` | Conventional Commits on the PR title     | `amannn/action-semantic-pull-request` pinned by commit SHA                                                                                                                                                         |
 
 **Third-party actions are pinned by commit SHA, not tag.** A tag can be moved
 to point at different code; a SHA cannot. `actions/*` are first-party GitHub
 and stay on major tags. The pinned SHAs and what they resolved to on
 2026-09-11:
 
-| Action | SHA | Resolves to |
-|---|---|---|
-| `dtolnay/rust-toolchain` | `6bed076…` | head of the `stable` branch — this action publishes no semver tags, so a branch head is the only thing to pin |
-| `Swatinem/rust-cache` | `6323deb…` | v2.9.2 (dereferenced from the annotated tag) |
-| `amannn/action-semantic-pull-request` | `48f2562…` | v6.1.1, which is also where the floating `v6` tag pointed |
+| Action                                | SHA        | Resolves to                                                                                                   |
+| ------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------- |
+| `dtolnay/rust-toolchain`              | `6bed076…` | head of the `stable` branch — this action publishes no semver tags, so a branch head is the only thing to pin |
+| `Swatinem/rust-cache`                 | `6323deb…` | v2.9.2 (dereferenced from the annotated tag)                                                                  |
+| `amannn/action-semantic-pull-request` | `48f2562…` | v6.1.1, which is also where the floating `v6` tag pointed                                                     |
 
 **No repo calls any of these yet.** They are published first so that adopting
 one is a small reviewable PR against a single repo, with a real CI run to
@@ -268,11 +268,11 @@ repo-level:
 **`mzizi-registry` → ruleset "Default"** (id 14801708, active, no bypass
 actors):
 
-| Rule | Parameters |
-|---|---|
-| `required_linear_history` | — |
-| `pull_request` | 0 approvals required, review-thread resolution off, `allowed_merge_methods: ["merge", "squash", "rebase"]` |
-| `required_status_checks` | `Lint`, `Type Check`, `Build`, `Security Audit`, `Test` |
+| Rule                      | Parameters                                                                                                 |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `required_linear_history` | —                                                                                                          |
+| `pull_request`            | 0 approvals required, review-thread resolution off, `allowed_merge_methods: ["merge", "squash", "rebase"]` |
+| `required_status_checks`  | `Lint`, `Type Check`, `Build`, `Security Audit`, `Test`                                                    |
 
 That ruleset is the org's only worked example of required status checks, and
 it is also broken — see gap 4.
@@ -304,20 +304,20 @@ each file's `_comment`. Two things to settle before applying:
 
 Uniform across all nine unless noted.
 
-| Setting | Value | Note |
-|---|---|---|
-| `allow_merge_commit` | true | The only permitted method |
-| `allow_squash_merge` / `allow_rebase_merge` | false | MIGRATION.md §1.1 |
-| `merge_commit_title` | `MERGE_MESSAGE` | "Merge pull request #N from …" |
-| `merge_commit_message` | `PR_TITLE` | The PR title becomes the body |
-| `delete_branch_on_merge` | **true** on all nine | Already correct — no cleanup needed |
-| `allow_auto_merge` | true on `mzizi-registry`, `mzizi-api-gateway`, `agent-tools`; **false** on the other six | Inconsistent |
-| `has_wiki` | false on `mzizi`, `mzizi-registry`, `mzizi-api-gateway`, `mzizi-site`; **true** on the other five | Unused surface, on by default |
-| Licence | Apache-2.0 on seven; **none** on `mzizi-roadmap` and `.github` | |
-| Secret scanning | **enabled on 2 of 8 public repos** — `mzizi-registry`, `mzizi-api-gateway` | |
-| Secret scanning push protection | Same two | |
-| Dependabot security updates | **disabled on all nine** | |
-| Private vulnerability reporting | **enabled on 2 of 8** — `mzizi`, `mzizi-registry`. Not available on `agent-tools` (private repo) | Determines where a security report can actually be filed |
+| Setting                                     | Value                                                                                             | Note                                                     |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `allow_merge_commit`                        | true                                                                                              | The only permitted method                                |
+| `allow_squash_merge` / `allow_rebase_merge` | false                                                                                             | MIGRATION.md §1.1                                        |
+| `merge_commit_title`                        | `MERGE_MESSAGE`                                                                                   | "Merge pull request #N from …"                           |
+| `merge_commit_message`                      | `PR_TITLE`                                                                                        | The PR title becomes the body                            |
+| `delete_branch_on_merge`                    | **true** on all nine                                                                              | Already correct — no cleanup needed                      |
+| `allow_auto_merge`                          | true on `mzizi-registry`, `mzizi-api-gateway`, `agent-tools`; **false** on the other six          | Inconsistent                                             |
+| `has_wiki`                                  | false on `mzizi`, `mzizi-registry`, `mzizi-api-gateway`, `mzizi-site`; **true** on the other five | Unused surface, on by default                            |
+| Licence                                     | Apache-2.0 on seven; **none** on `mzizi-roadmap` and `.github`                                    |                                                          |
+| Secret scanning                             | **enabled on 2 of 8 public repos** — `mzizi-registry`, `mzizi-api-gateway`                        |                                                          |
+| Secret scanning push protection             | Same two                                                                                          |                                                          |
+| Dependabot security updates                 | **disabled on all nine**                                                                          |                                                          |
+| Private vulnerability reporting             | **enabled on 2 of 8** — `mzizi`, `mzizi-registry`. Not available on `agent-tools` (private repo)  | Determines where a security report can actually be filed |
 
 ---
 
@@ -343,7 +343,7 @@ security to a private advisory), `SECURITY.md`, `CONTRIBUTING.md`,
   repo can supply as defaults is CODE_OF_CONDUCT.md, CONTRIBUTING.md,
   discussion category forms, FUNDING.yml, issue and PR templates, SECURITY.md
   and SUPPORT.md. CODEOWNERS is not on it, and the CODEOWNERS docs read the
-  file from `.github/`, the root, or `docs/` *of the repository*. So
+  file from `.github/`, the root, or `docs/` _of the repository_. So
   `.github/CODEOWNERS` in this repo governs this repo and nothing else.
   `CODEOWNERS.example` at the root is the template to copy into each repo.
   This is gap 14.
@@ -385,7 +385,7 @@ repo.**
 
 **4. `mzizi-registry`'s ruleset contradicts the merge-only convention.** Its
 "Default" ruleset requires `required_linear_history`, which blocks merge
-commits — while the repo's only enabled merge method *is* the merge commit.
+commits — while the repo's only enabled merge method _is_ the merge commit.
 The next PR merged there with the merge button should be rejected by the
 ruleset. Stated as a prediction rather than an observation, honestly: the
 last merges on that repo (PRs #317, #318, 2026-09-08) produced single-parent

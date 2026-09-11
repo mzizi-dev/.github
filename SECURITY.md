@@ -12,14 +12,14 @@ points at a stale URL (see "Known problems" below).
 Report privately through GitHub Security Advisories, on the repo the finding
 affects:
 
-| Repo | Private reporting | Advisory link |
-|---|---|---|
-| `mzizi` | **enabled** | <https://github.com/mzizi-dev/mzizi/security/advisories/new> |
-| `mzizi-registry` | **enabled** | <https://github.com/mzizi-dev/mzizi-registry/security/advisories/new> |
-| `mzizi-console` | not enabled | — |
-| `mzizi-api-gateway` | not enabled | — |
-| `mzizi-site`, `mzizi-docs`, `mzizi-roadmap`, `.github` | not enabled | — |
-| `agent-tools` | n/a — private repo | — |
+| Repo                                                   | Private reporting  | Advisory link                                                         |
+| ------------------------------------------------------ | ------------------ | --------------------------------------------------------------------- |
+| `mzizi`                                                | **enabled**        | <https://github.com/mzizi-dev/mzizi/security/advisories/new>          |
+| `mzizi-registry`                                       | **enabled**        | <https://github.com/mzizi-dev/mzizi-registry/security/advisories/new> |
+| `mzizi-console`                                        | not enabled        | —                                                                     |
+| `mzizi-api-gateway`                                    | not enabled        | —                                                                     |
+| `mzizi-site`, `mzizi-docs`, `mzizi-roadmap`, `.github` | not enabled        | —                                                                     |
+| `agent-tools`                                          | n/a — private repo | —                                                                     |
 
 Verified 2026-09-11 against the GitHub API. If the repo you need is in the
 "not enabled" rows, **report against `mzizi-dev/mzizi`** and say in the
@@ -27,7 +27,7 @@ report which component it actually concerns; it reaches the same maintainers.
 Enabling private reporting on the remaining repos is a tracked gap — see
 [ORG_STANDARDS.md](./ORG_STANDARDS.md#known-gaps).
 
-If GitHub advisories are unavailable to you, email **security@nyuchi.com**
+If GitHub advisories are unavailable to you, email **<security@nyuchi.com>**
 with the same information. Nyuchi Africa operates the Mzizi surfaces
 commercially and that mailbox is the one already in use for this ecosystem;
 it is not a separate team.
@@ -51,14 +51,14 @@ sent early is more useful than a complete one sent late.
 
 In scope:
 
-| Repo | Surface |
-|---|---|
-| `mzizi` | The compiler and the `mz` CLI — anything where checking or compiling untrusted `.mz` source can execute code, escape the working directory, or exhaust the host |
-| `mzizi-api-gateway` | api.mzizi.dev — the Worker: routing, auth token handling, request and response validation |
-| `mzizi-registry` | mzizi.dev — the registry API and the component source it serves |
-| `mzizi-console` | app.mzizi.dev — the console and its WASM islands |
-| `mzizi-site`, `mzizi-docs` | The public site and documentation |
-| This repo | The reusable workflows, and the ruleset definitions under `github-rulesets/` |
+| Repo                       | Surface                                                                                                                                                         |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mzizi`                    | The compiler and the `mz` CLI — anything where checking or compiling untrusted `.mz` source can execute code, escape the working directory, or exhaust the host |
+| `mzizi-api-gateway`        | api.mzizi.dev — the Worker: routing, auth token handling, request and response validation                                                                       |
+| `mzizi-registry`           | mzizi.dev — the registry API and the component source it serves                                                                                                 |
+| `mzizi-console`            | app.mzizi.dev — the console and its WASM islands                                                                                                                |
+| `mzizi-site`, `mzizi-docs` | The public site and documentation                                                                                                                               |
+| This repo                  | The reusable workflows, and the ruleset definitions under `github-rulesets/`                                                                                    |
 
 Out of scope: volumetric denial of service, findings against Cloudflare or
 Vercel themselves, missing headers with no demonstrated impact, and raw

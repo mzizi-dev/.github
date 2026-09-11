@@ -16,8 +16,8 @@
 
 ## Commits
 
-- [ ] Each commit is a coherent step with a message that says *why*, not
-      just *what*. They are not going to be squashed away.
+- [ ] Each commit is a coherent step with a message that says _why_, not
+      just _what_. They are not going to be squashed away.
 - [ ] No "fix typo" / "address review" commits left in the history — fold
       them into the commit they belong to before requesting review.
 

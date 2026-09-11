@@ -1,0 +1,62 @@
+# Copy this to `.github/dependabot.yml` in a consuming repo and delete the
+# ecosystems that do not apply. Dependabot has no org-wide fallback — a file
+# in `mzizi-dev/.github` covers only that repo.
+#
+# Status note, 2026-09-11: `mzizi-registry` is the ONLY repo in this org with
+# a `.github/dependabot.yml` today. Dependabot *security* updates are
+# disabled org-wide, so for the other eight repos neither the version-bump
+# PRs configured here nor the automatic security fixes are running.
+
+version: 2
+updates:
+  # ---- Every repo with workflows ----
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
+
+  # ---- Rust: mzizi (directory /compiler), mzizi-console, mzizi-api-gateway ----
+  # `directory` must point at the directory holding Cargo.toml. In `mzizi`
+  # that is `/compiler`, not `/`.
+  - package-ecosystem: cargo
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+    labels:
+      - dependencies
+    groups:
+      # One PR for the routine patch churn, individual PRs for majors. A
+      # wasm32 target makes a Rust bump more likely than usual to break the
+      # build rather than just the tests, so majors are worth reading alone.
+      cargo-minor-patch:
+        update-types:
+          - minor
+          - patch
+
+  # ---- npm/pnpm: mzizi-registry, mzizi-console (the Astro half), agent-tools ----
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: build
+    labels:
+      - dependencies
+    groups:
+      types:
+        patterns:
+          - "@types/*"
+      dev-minor-patch:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch

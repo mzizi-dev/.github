@@ -1,0 +1,153 @@
+# Reusable workflow: Rust CI — fmt, clippy, test, and an optional
+# cross-target check.
+#
+#   jobs:
+#     rust:
+#       uses: mzizi-dev/.github/.github/workflows/reusable-rust-ci.yml@main
+#       with:
+#         target: wasm32-unknown-unknown
+#
+# The check name GitHub reports is "<calling job id> / rust" — e.g. a caller
+# job keyed `rust:` produces the context "rust / rust". Read the exact string
+# off a completed run before naming it in a ruleset; a context that has never
+# reported blocks every PR forever.
+#
+# ---------------------------------------------------------------------------
+# Why `target` exists
+# ---------------------------------------------------------------------------
+# Two of this org's three Rust repos ship as WASM: `mzizi-console` runs in a
+# browser, `mzizi-api-gateway` runs on workerd. Code can pass a native
+# `cargo check` and fail to compile for either — conditional compilation, a
+# dependency that is host-only, `std` surface that does not exist on wasm32.
+# A native-only pass is not evidence about the artefact that actually ships.
+#
+# So `target` is not a convenience knob. Leave it empty only for a crate that
+# genuinely never leaves the host (`mzizi`'s compiler).
+
+name: Reusable / Rust CI
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: Directory holding Cargo.toml. Defaults to the repo root.
+        type: string
+        default: "."
+      toolchain:
+        description: Rust toolchain — `stable`, `nightly`, or a pinned version like `1.90.0`.
+        type: string
+        default: stable
+      target:
+        description: >
+          Extra compilation target to check against, e.g.
+          wasm32-unknown-unknown. Empty means host-only. When set, the target
+          is installed and `cargo check --target <target> --all-targets` runs
+          as its own step.
+        type: string
+        default: ""
+      clippy-on-target:
+        description: >
+          Run clippy against `target` instead of the host. Set this when the
+          crate's dependencies are cfg'd for that target and a host lint pass
+          would therefore be checking code the artefact never runs — which is
+          the case for workers-rs. Requires `target` to be set.
+        type: boolean
+        default: false
+      run-tests:
+        description: >
+          Run `cargo test` on the host. Stays useful for a WASM crate: the
+          pure logic — decoders, parsers, type shapes — is target-independent
+          and worth testing where a test harness actually exists.
+        type: boolean
+        default: true
+      test-args:
+        description: Extra arguments appended to `cargo test`.
+        type: string
+        default: ""
+      cache-workspaces:
+        description: >
+          Passed to Swatinem/rust-cache as `workspaces`. Set it to the same
+          value as `working-directory` when the crate is not at the repo root.
+        type: string
+        default: "."
+      timeout-minutes:
+        description: Job timeout.
+        type: number
+        default: 20
+
+permissions:
+  contents: read
+
+jobs:
+  rust:
+    name: rust
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    steps:
+      # Fail loudly on a contradictory call rather than silently doing the
+      # weaker thing. `clippy-on-target: true` with no target would otherwise
+      # lint the host and report green, which is the exact false pass this
+      # workflow exists to prevent.
+      - name: Validate inputs
+        if: ${{ inputs.clippy-on-target && inputs.target == '' }}
+        run: |
+          echo "::error::clippy-on-target is true but target is empty. Set target, or set clippy-on-target to false."
+          exit 1
+
+      - uses: actions/checkout@v5
+
+      # Third-party action, pinned by commit SHA: a tag can be moved to point
+      # at different code, a SHA cannot. This is the `stable` branch head of
+      # dtolnay/rust-toolchain as of 2026-09-11.
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: ${{ inputs.toolchain }}
+          components: clippy, rustfmt
+          targets: ${{ inputs.target }}
+
+      # v2.9.2, dereferenced from the annotated tag to its commit.
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          workspaces: ${{ inputs.cache-workspaces }}
+
+      - name: cargo fmt --check
+        working-directory: ${{ inputs.working-directory }}
+        run: cargo fmt --all -- --check
+
+      - name: cargo clippy (host)
+        if: ${{ !inputs.clippy-on-target }}
+        working-directory: ${{ inputs.working-directory }}
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: cargo clippy (${{ inputs.target }})
+        if: ${{ inputs.clippy-on-target }}
+        working-directory: ${{ inputs.working-directory }}
+        env:
+          TARGET: ${{ inputs.target }}
+        run: cargo clippy --target "$TARGET" --all-targets -- -D warnings
+
+      - name: cargo test
+        if: ${{ inputs.run-tests }}
+        working-directory: ${{ inputs.working-directory }}
+        env:
+          EXTRA: ${{ inputs.test-args }}
+        # `test-args` is an argument LIST, so it has to word-split — but
+        # `cargo test $EXTRA` unquoted also glob-expands, and shellcheck is
+        # right to flag it (SC2086). Splitting into an array does the one
+        # thing that is wanted and not the one that is not. An empty EXTRA
+        # yields an empty array, and `"${extra[@]}"` on an empty array is
+        # safe under `set -u` in bash 4.4+ — ubuntu-latest ships bash 5.
+        run: |
+          set -euo pipefail
+          read -ra extra <<< "$EXTRA"
+          cargo test "${extra[@]}"
+
+      # The step that catches what a host build cannot. Runs last so a
+      # formatting or lint failure is reported before the slower compile.
+      - name: cargo check --target ${{ inputs.target }}
+        if: ${{ inputs.target != '' && !inputs.clippy-on-target }}
+        working-directory: ${{ inputs.working-directory }}
+        env:
+          TARGET: ${{ inputs.target }}
+        run: cargo check --target "$TARGET" --all-targets

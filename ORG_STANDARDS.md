@@ -429,6 +429,20 @@ If the fold is complete, the repo should be archived rather than left as a
 second place a roadmap might live — which `MIGRATION.md` §1 explicitly warns
 against: "do not leave a roadmap living apart from the code it plans."
 
+**13. GitHub can enforce SHA-pinning org-wide, and it is switched off.**
+`GET /orgs/mzizi-dev/actions/permissions` reports
+`sha_pinning_required: false` (with `enabled_repositories: all` and
+`allowed_actions: all`). This repo pins its third-party actions by SHA as a
+convention, but a convention is only as good as the next contributor's
+memory — the org setting makes it a rule that GitHub checks. Turning it on
+would first require every existing workflow in the org to be pinned; today
+they use floating tags (`actions/checkout@v5`, `pnpm/action-setup@v4`,
+`dtolnay/rust-toolchain@stable`), so this is a migration, not a switch. The
+same endpoint's `default_workflow_permissions: write` is also worth
+revisiting: every workflow in the org starts with a read-write `GITHUB_TOKEN`
+unless it narrows its own `permissions`, and `read` would be the safer
+default given all five workflows in this repo declare what they need.
+
 **12. `allow_auto_merge` and `has_wiki` are inconsistent across repos.**
 Cosmetic, but `has_wiki: true` on five repos leaves an unused, unwatched
 surface open on a public org. `mzizi-roadmap` and `.github` also carry no

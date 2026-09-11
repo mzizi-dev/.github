@@ -1,9 +1,10 @@
 # Dependabot for THIS repo only.
 #
 # A `dependabot.yml` in the org `.github` repo is NOT inherited by other
-# repos — unlike CODEOWNERS, issue templates and SECURITY.md, Dependabot has
-# no org-wide fallback. Each repo needs its own file. See
-# `dependabot.example.yml` beside this one for a starting point to copy.
+# repos. Issue and PR templates, SECURITY.md, CONTRIBUTING.md, SUPPORT.md and
+# CODE_OF_CONDUCT.md do fall back to this repo; Dependabot and CODEOWNERS do
+# not. Each repo needs its own copy of both. See `dependabot.example.yml` and
+# `CODEOWNERS.example` at the root for starting points.
 #
 # The only thing here is a Cargo.toml-free repo of workflows, so
 # github-actions is the only ecosystem that applies.

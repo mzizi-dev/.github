@@ -1,0 +1,63 @@
+# Copy this to `.github/CODEOWNERS` in a consuming repo, then delete the
+# sections that do not apply.
+#
+# WHY A TEMPLATE AND NOT A CENTRAL FILE
+# CODEOWNERS is NOT inheritable from an organisation's `.github` repo.
+# GitHub's list of community health files an org can supply as defaults is
+# CODE_OF_CONDUCT.md, CONTRIBUTING.md, discussion category forms, FUNDING.yml,
+# issue and PR templates, SECURITY.md and SUPPORT.md. CODEOWNERS is not on it,
+# and the CODEOWNERS docs read the file from `.github/`, the root, or `docs/`
+# "of the repository". Unlike SECURITY.md or the PR template, there is no
+# central copy that covers the org — every repo needs its own file or it has
+# no review routing at all.
+#
+# STATUS, 2026-09-11: `mzizi-registry` is the only repo in the org with a
+# CODEOWNERS, and every rule in it names `@nyuchi/core` — a team in another
+# org, which does not exist there either. It assigns nobody. So in practice
+# no repo in `mzizi-dev` has working review routing today.
+#
+# RULES OF THE FORMAT
+#   - The LAST matching pattern wins. Keep the catch-all first and add
+#     narrower rules below it.
+#   - An owner must have write access to THIS repo. A user or team from
+#     another org silently matches nobody — no error, no warning, no
+#     reviewer. That is the failure mode above.
+#   - This org has no teams, so name users.
+
+# Default owner for everything.
+*                       @bryanfawcett
+
+# ---------------------------------------------------------------------------
+# Add below, not above. Uncomment what exists in your repo.
+# ---------------------------------------------------------------------------
+
+# --- Anything that changes what CI runs, or what may merge ---
+# A PR that edits its own gate should be read by a human before it lands.
+# /.github/workflows/     @bryanfawcett
+# /.github/CODEOWNERS     @bryanfawcett
+
+# --- mzizi: the compiler and the corpus it must keep accepting ---
+# /compiler/              @bryanfawcett
+# /primitives/            @bryanfawcett
+# /examples/              @bryanfawcett
+# /CHARTER.md             @bryanfawcett
+# /MIGRATION.md           @bryanfawcett
+
+# --- mzizi-api-gateway, mzizi-console: deployment configuration ---
+# wrangler.jsonc carries the custom-domain routes. A wrong edit takes a
+# hostname down rather than failing a build, so it fails late and loudly
+# instead of early and cheaply.
+# /wrangler.jsonc         @bryanfawcett
+
+# --- mzizi-registry: what downstream consumers actually install ---
+# This repo serves source into other people's production apps, so the files
+# that decide what is served matter more than their size suggests.
+# /registry.json          @bryanfawcett
+# /app/globals.css        @bryanfawcett
+# /lib/db/                @bryanfawcett
+
+# --- Secrets policy ---
+# .gitleaks.toml is an allowlist: a change to it is a change to what the
+# secret scan agrees to ignore.
+# /.gitleaks.toml         @bryanfawcett
+# /SECURITY.md            @bryanfawcett

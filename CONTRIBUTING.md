@@ -53,7 +53,12 @@ The PR title must parse as a Conventional Commit. Allowed types:
 
 Rules:
 
-- Subject starts **lowercase**.
+- Subject starts **lowercase**. This catches more than sloppiness: a subject
+  beginning with an all-caps identifier fails too, so
+  `fix: CODEOWNERS is not inheritable` is rejected and
+  `fix: stop claiming CODEOWNERS is inheritable` passes. Reword rather than
+  ask for the rule to be loosened — lowercasing the identifier itself would
+  be worse.
 - Subject is **imperative** — "add", not "adds" or "added".
 - No trailing period.
 - Scope is optional: `feat(compiler): ...` is fine, `feat: ...` is fine.

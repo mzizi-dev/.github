@@ -99,7 +99,13 @@ Read from the workflow files in each repo's default branch.
 | `compiler` (cont.) | `mz check ../examples/connectivity_bar.mz`, then `mz check` over **every** file in `primitives/`, using the built binary rather than the test harness |
 | `secret scan` | `gitleaks detect` at `fetch-depth: 0` — full history, because this repo arrived via `git subtree split` and every commit reached CI for the first time at once |
 
-`mzizi-lang-benchmark-dispatch.yml` is the second workflow.
+`mzizi-lang-benchmark-dispatch.yml` is the second workflow. On push to
+`main` it dispatches to a held-out benchmark runner named by the
+`MZIZI_HELDOUT_REPO` repo variable, guarded by
+`if: github.repository == 'mzizi-dev/mzizi'` so a fork cannot fire it. The
+held-out task set is deliberately kept out of the public repo — per
+`MIGRATION.md` §5, it is "withheld so the benchmark measures the language
+rather than memorisation". Nothing here checks whether that runner exists.
 
 The `mz check` steps are the interesting part and are worth copying in
 spirit: they assert the *shipped binary* still accepts the corpus, which is a

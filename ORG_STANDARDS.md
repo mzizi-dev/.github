@@ -312,8 +312,8 @@ Uniform across all nine unless noted.
 | `merge_commit_message` | `PR_TITLE` | The PR title becomes the body |
 | `delete_branch_on_merge` | **true** on all nine | Already correct — no cleanup needed |
 | `allow_auto_merge` | true on `mzizi-registry`, `mzizi-api-gateway`, `agent-tools`; **false** on the other six | Inconsistent |
-| `has_wiki` | false on `mzizi`, `mzizi-registry`, `mzizi-api-gateway`; **true** on the other six | Unused surface, on by default |
-| Licence | Apache-2.0 on six; **none** on `mzizi-roadmap` and `.github` | |
+| `has_wiki` | false on `mzizi`, `mzizi-registry`, `mzizi-api-gateway`, `mzizi-site`; **true** on the other five | Unused surface, on by default |
+| Licence | Apache-2.0 on seven; **none** on `mzizi-roadmap` and `.github` | |
 | Secret scanning | **enabled on 2 of 8 public repos** — `mzizi-registry`, `mzizi-api-gateway` | |
 | Secret scanning push protection | Same two | |
 | Dependabot security updates | **disabled on all nine** | |
@@ -430,5 +430,6 @@ second place a roadmap might live — which `MIGRATION.md` §1 explicitly warns
 against: "do not leave a roadmap living apart from the code it plans."
 
 **12. `allow_auto_merge` and `has_wiki` are inconsistent across repos.**
-Cosmetic, but `has_wiki: true` on six repos leaves an unused, unwatched
-surface open on a public org.
+Cosmetic, but `has_wiki: true` on five repos leaves an unused, unwatched
+surface open on a public org. `mzizi-roadmap` and `.github` also carry no
+licence.

@@ -1,9 +1,14 @@
 # mzizi-dev/.github
 
-Org-wide defaults for the [`mzizi-dev`](https://github.com/mzizi-dev) GitHub
-organisation. GitHub falls back to what lives here for any repo in the org
-that does not ship its own copy, and this is where the org's reusable
-workflows live.
+> Org-wide defaults for the [`mzizi-dev`](https://github.com/mzizi-dev) GitHub organisation — community-health files, reusable workflows, and the record of what CI and governance actually enforce.
+
+[![CI](https://github.com/mzizi-dev/.github/actions/workflows/ci.yml/badge.svg)](https://github.com/mzizi-dev/.github/actions/workflows/ci.yml)
+[![Lint](https://github.com/mzizi-dev/.github/actions/workflows/lint.yml/badge.svg)](https://github.com/mzizi-dev/.github/actions/workflows/lint.yml)
+
+**Org:** nine repositories | **Merge method:** rebase only | **Standard:** [ORG_STANDARDS.md](./ORG_STANDARDS.md)
+
+GitHub falls back to what lives here for any repo in the org that does not ship
+its own copy, and this is where the org's reusable workflows live.
 
 **Start here: [ORG_STANDARDS.md](./ORG_STANDARDS.md)** — what CI actually runs
 in each repo today, and an explicit list of what does not exist yet.
@@ -41,12 +46,69 @@ jobs:
 No repo calls these yet — they are published here first so adoption is a
 reviewable PR per repo rather than a big-bang change. See ORG_STANDARDS.md.
 
-## This org is merge-only
+## This org is rebase-only
 
-Squash and rebase merging are disabled on all nine repos, deliberately:
-`mzizi/MIGRATION.md` §1.1 — _"Squash discards the per-commit reasoning this
-project depends on."_
+**Corrected 2026-09-12. This section previously said the reverse, with a
+citation.**
 
-Merge with `gh pr merge <n> --merge --delete-branch`. Write your commits for
-the person reading them in a year; they are not going to be squashed away.
-[CONTRIBUTING.md](./CONTRIBUTING.md) has the rest.
+Rebase merging is the only method enabled on all nine repos. Merge commits and
+squash merging are both disabled, and auto-merge is on everywhere. Read off the
+API per repo on 2026-09-12:
+
+```text
+allow_rebase_merge   true       (was: false)
+allow_merge_commit   false      (was: true — and documented here as the only method)
+allow_squash_merge   false      (unchanged)
+allow_auto_merge     true       (was: true on three of nine)
+```
+
+All 75 repositories in the Bundu Foundation enterprise report the same, so this
+is an estate-wide setting and not a decision taken in this org.
+
+```sh
+gh pr merge <n> --rebase --auto
+```
+
+`--merge` and `--squash` are what the repo settings now reject. Never
+`--admin`.
+
+**Rebase still keeps every commit.** `mzizi/MIGRATION.md` §1.1 — _"squash
+discards the per-commit reasoning this project depends on"_ — argued against
+squash, and squash is still off. What rebase drops is the merge commit itself,
+so write your commits for the person reading them in a year; they land on
+`main` individually, in order, exactly as written.
+
+`org-status-checks`, an active org ruleset, requires the five `lint / *`
+contexts on every default branch and uses a strict policy, so a branch must be
+up to date with `main` before auto-merge will fire.
+[CONTRIBUTING.md](./CONTRIBUTING.md) and
+[ORG_STANDARDS.md](./ORG_STANDARDS.md#the-merge-convention) have the rest.
+
+## How a README in this org should open
+
+The estate-wide README standard is `README-STANDARD.md` in the `nyuchi` org's
+`.github` repository, proposed in
+[`nyuchi/.github#62`](https://github.com/nyuchi/.github/pull/62). It covers all
+seven orgs — `mzizi-dev`, `mukoko-dev`, `nyuchi`, `bundu-labs`, `shamwari-ai`,
+`openNTL`, `siafuDB` — and it is derived from three READMEs in the estate that
+already worked, one of them `mzizi-dev/mzizi-registry`.
+
+**That pull request is open and unmerged**, so the file is not on
+`nyuchi/.github`'s default branch yet and a link to the blob would 404. Read it
+on the pull request.
+
+It also carries the branding facts this org's READMEs keep getting wrong: the
+palette is **21 colour families** — 7 minerals, 7 heritage, 7 experimental —
+not five and not seven; the architecture is the **DNA double helix** and
+"axis", "axes" and "layer" are retired vocabulary; **there is no database**
+behind the registry, which is disk; and `docs.mzizi.dev` does not resolve and
+must not be linked. [ORG_STANDARDS.md](./ORG_STANDARDS.md#writing-a-readme)
+summarises it.
+
+## Licence
+
+This repository carries no licence file. Everything it holds is org
+configuration and policy boilerplate rather than code.
+
+Mzizi is an open-architecture project of the **Bundu Foundation**, operated and
+developed by **Nyuchi**.

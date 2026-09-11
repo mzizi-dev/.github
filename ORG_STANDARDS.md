@@ -1,13 +1,43 @@
 # Org CI and governance standards — `mzizi-dev`
 
-**Everything here was read off the GitHub API on 2026-09-11**, not inferred
-from what ought to be true. Where something is a proposal rather than
-something running today, it is in [Known gaps](#known-gaps) and says so.
-Nothing on this page should be read as enforced unless it says it is.
+**Everything here was read off the GitHub API**, not inferred from what ought
+to be true. Where something is a proposal rather than something running today,
+it is in [Known gaps](#known-gaps) and says so. Nothing on this page should be
+read as enforced unless it says it is.
 
 If you are adding CI to a repo in this org, the two sections worth reading
-first are [The merge-only convention](#the-merge-only-convention) and
+first are [The merge convention](#the-merge-convention) and
 [Rust CI: the WASM trap](#rust-ci-the-wasm-trap).
+
+> **Correction, 2026-09-12**
+>
+> **This document said the org was merge-only. It is now rebase-only, and the
+> reversal is total.** Re-read off the API on 2026-09-12, every one of the nine
+> repos reports:
+>
+> ```text
+> allow_merge_commit   false      (was: true everywhere)
+> allow_squash_merge   false      (unchanged)
+> allow_rebase_merge   true       (was: false everywhere)
+> allow_auto_merge     true       (was: true on three of nine)
+> ```
+>
+> The same is true across all 75 repositories in the Bundu Foundation
+> enterprise, so this is an estate-wide change rather than something done to
+> this org alone. `gh pr merge --merge` is now the command that gets rejected;
+> `gh pr merge --rebase --auto` is the one that works.
+>
+> Three other sections went stale in the same twenty-four hours and are
+> corrected in place below, each marked with the date: the org had no rulesets
+> and now has two, three repos were described as empty or README-only and now
+> carry content and CI, and the per-repo settings table has moved on.
+>
+> Everything not marked with a 2026-09-12 date is still as it was read on
+> 2026-09-11 and has not been re-verified.
+
+The estate-wide README standard that governs how every repo in all seven orgs
+opens now lives in the `nyuchi` org — see
+[Writing a README](#writing-a-readme) at the end of this document.
 
 ---
 
@@ -17,70 +47,91 @@ Nine repos. Two members — `@bryanfawcett` (admin) and `@michellellawson`
 (member). **No teams exist**, which is why `.github/CODEOWNERS` names users
 rather than a `@mzizi-dev/...` handle.
 
-| Repo                                                                  | Public | Stack                                    | State                                                                                                                           |
-| --------------------------------------------------------------------- | ------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| [`mzizi`](https://github.com/mzizi-dev/mzizi)                         | yes    | Rust                                     | The language, compiler and `mz` CLI. Bundu Foundation IP. Has content and CI                                                    |
-| [`mzizi-registry`](https://github.com/mzizi-dev/mzizi-registry)       | yes    | Next.js (+ Rust crates) on Vercel        | The component registry and mzizi.dev. The largest repo, and the only one with its own community-health files                    |
-| [`mzizi-console`](https://github.com/mzizi-dev/mzizi-console)         | yes    | Astro + Rust/Dioxus WASM islands         | app.mzizi.dev. Has content and CI                                                                                               |
-| [`mzizi-api-gateway`](https://github.com/mzizi-dev/mzizi-api-gateway) | yes    | Pure-Rust Cloudflare Worker (workers-rs) | api.mzizi.dev. Has content and CI                                                                                               |
-| [`mzizi-site`](https://github.com/mzizi-dev/mzizi-site)               | yes    | —                                        | **Completely empty** — no commits at all. Not "a README": the API returns "This repository is empty"                            |
-| [`mzizi-docs`](https://github.com/mzizi-dev/mzizi-docs)               | yes    | Mintlify (planned)                       | README and LICENSE only. No `.github/` directory, no CI                                                                         |
-| [`mzizi-roadmap`](https://github.com/mzizi-dev/mzizi-roadmap)         | yes    | —                                        | README only. `mzizi`'s own history shows the roadmap being folded into `mzizi/design/ROADMAP.md`, so this repo may be vestigial |
-| [`agent-tools`](https://github.com/mzizi-dev/agent-tools)             | **no** | TypeScript / pnpm                        | MCP server, `fundi` agent, CLI, skills. The most CI of any repo — ten workflows                                                 |
-| [`.github`](https://github.com/mzizi-dev/.github)                     | yes    | —                                        | This repo                                                                                                                       |
+| Repo                                                                  | Public | Stack                                    | State                                                                                                                                                                         |
+| --------------------------------------------------------------------- | ------ | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`mzizi`](https://github.com/mzizi-dev/mzizi)                         | yes    | Rust                                     | The language, compiler and `mz` CLI. Bundu Foundation IP. Has content and CI                                                                                                  |
+| [`mzizi-registry`](https://github.com/mzizi-dev/mzizi-registry)       | yes    | Next.js (+ Rust crates)                  | The component registry. The largest repo, and the only one with its own community-health files. **2026-09-12: it no longer serves mzizi.dev** — see the note under this table |
+| [`mzizi-console`](https://github.com/mzizi-dev/mzizi-console)         | yes    | Astro + Rust/Dioxus WASM islands         | app.mzizi.dev. Has content and CI                                                                                                                                             |
+| [`mzizi-api-gateway`](https://github.com/mzizi-dev/mzizi-api-gateway) | yes    | Pure-Rust Cloudflare Worker (workers-rs) | api.mzizi.dev. Has content and CI                                                                                                                                             |
+| [`mzizi-site`](https://github.com/mzizi-dev/mzizi-site)               | yes    | Astro on Cloudflare Workers              | **2026-09-12: no longer empty, and it now serves the `mzizi.dev` apex.** Three pages, CI, and a custom domain attached outside version control                                |
+| [`mzizi-docs`](https://github.com/mzizi-dev/mzizi-docs)               | yes    | Mintlify                                 | **2026-09-12: no longer README-only.** The full documentation site, with CI. Not deployed — `docs.mzizi.dev` does not resolve                                                 |
+| [`mzizi-roadmap`](https://github.com/mzizi-dev/mzizi-roadmap)         | yes    | —                                        | A pointer to `mzizi/design/ROADMAP.md`, which is where the roadmap now lives. Its README calls itself archived; **the repo is not archived on GitHub**                        |
+| [`agent-tools`](https://github.com/mzizi-dev/agent-tools)             | **no** | TypeScript / pnpm                        | MCP server, `fundi` agent, CLI, skills. The most CI of any repo — ten workflows                                                                                               |
+| [`.github`](https://github.com/mzizi-dev/.github)                     | yes    | —                                        | This repo                                                                                                                                                                     |
+
+**2026-09-12 — the `mzizi.dev` apex changed hands.** It is served by the Astro
+Worker in `mzizi-site`, not by `mzizi-registry` on Vercel:
+`curl -sSI https://mzizi.dev` returns `server: cloudflare` with no
+`x-vercel-id`, and `https://mzizi.dev/llms.txt` is byte-identical to
+`public/llms.txt` in `mzizi-site`. The registry's developer portal —
+`/components`, `/tokens`, `/brand`, `/architecture`, `/observability`, `/r/` —
+now 404s on the apex and has no live address. `api.mzizi.dev` and
+`mcp.mzizi.dev` survived because they had already moved. The cutover runbook
+(`mzizi-site#3`) and the PR porting the displaced pages (`mzizi-site#5`) are
+both still open, and `mzizi-registry#334`, which would have made the route
+reviewable, was closed unmerged. `mzizi-site/README.md` records the sequence.
 
 ---
 
-## The merge-only convention
+## The merge convention
 
-**Squash merging and rebase merging are disabled on all nine repos.
-`allow_merge_commit` is true everywhere; `allow_squash_merge` and
-`allow_rebase_merge` are false everywhere.** Verified on each repo
-individually.
+**Corrected 2026-09-12. This section previously said the opposite, and said it
+with a verification note attached, which is why it is worth reading twice.**
 
-This is a decision, not a default. `mzizi-dev/mzizi`'s `MIGRATION.md` §1.1:
+**Rebase merging is the only method enabled on all nine repos. Merge commits
+and squash merging are both disabled, and auto-merge is on everywhere.** Read
+off the API per repo on 2026-09-12:
 
-| Allow merge commits | **yes** | The ecosystem convention is merge-only; history stays truthful |
-| Allow squash merging | **no** | Squash discards the per-commit reasoning this project depends on |
-| Allow rebase merging | **no** | Same |
+| Setting              | Value on all nine | Was, on 2026-09-11 |
+| -------------------- | ----------------- | ------------------ |
+| `allow_rebase_merge` | **true**          | false              |
+| `allow_merge_commit` | **false**         | true               |
+| `allow_squash_merge` | false             | false              |
+| `allow_auto_merge`   | **true**          | true on three      |
 
-It is visible in the history. `mzizi`, `mzizi-api-gateway` and `agent-tools`
-all have two-parent `Merge pull request #N from mzizi-dev/...` commits at or
-near the tip of `main`.
-
-Three consequences that are easy to get wrong:
-
-**1. Your commits are permanent, exactly as written.** Nothing folds them
-together. Clean the branch up with an interactive rebase _on your own branch_
-before requesting review, and write messages that explain why.
-
-**2. The PR title becomes the merge commit body, not its subject.** Every
-repo is `merge_commit_title=MERGE_MESSAGE`, `merge_commit_message=PR_TITLE`
-(verified on all nine). The result:
-
-```
-Merge pull request #12 from mzizi-dev/claude/org-defaults
-
-feat(ci): add the rust reusable workflow
-```
-
-So a PR-title lint here is not the squash-org version of the same check. It
-is not guarding the commit subject on `main` — it is guarding the one line
-that summarises the branch in `git log --first-parent`. Worth having, and
-worth being precise about.
-
-**3. `required_linear_history` is incompatible with this org.** That ruleset
-rule blocks merge commits, and a merge commit is the only merge this org
-permits. The two together make every PR unmergeable. This is not theoretical
-— see gap 4.
+This matches all 75 repositories in the Bundu Foundation enterprise, so it is
+an estate-wide setting rather than a decision taken in this org.
 
 Merge with:
 
 ```sh
-gh pr merge <n> --merge --delete-branch
+gh pr merge <n> --rebase --auto
 ```
 
-`--squash` and `--rebase` are rejected by the repo settings.
+`--merge` and `--squash` are now what the repo settings reject. Never
+`--admin`.
+
+### What this displaces
+
+`mzizi-dev/mzizi`'s `MIGRATION.md` §1.1 argued for merge-only on the grounds
+that _"squash discards the per-commit reasoning this project depends on"_.
+**Rebase preserves that reasoning**: every commit on the branch lands on `main`
+individually, in order, with its message intact. What is lost is the merge
+commit itself — the two-parent node and the `Merge pull request #N from …`
+line that `git log --first-parent` used to summarise a branch with.
+
+Three consequences:
+
+**1. Your commits are still permanent, exactly as written.** Nothing folds
+them together. Clean the branch up with an interactive rebase _on your own
+branch_ before requesting review, and write messages that explain why. This
+part did not change.
+
+**2. `merge_commit_title` / `merge_commit_message` no longer do anything.**
+Every repo still reports `MERGE_MESSAGE` / `PR_TITLE`, but with
+`allow_merge_commit: false` no merge commit can be produced, so the PR title
+never reaches `main` in any form. A PR-title lint is now purely a review-time
+convention — it guards nothing in the history. Worth keeping, worth being
+honest about what it does.
+
+**3. `required_linear_history` is now consistent with the org**, where it used
+to contradict it. Rebase merges produce linear history by construction. Gap 4
+below is resolved by this change rather than by anyone fixing it.
+
+**A note on the history in this repo.** `mzizi`, `mzizi-api-gateway` and
+`agent-tools` carry two-parent `Merge pull request #N from mzizi-dev/...`
+commits near the tip of `main`. Those are artefacts of the old setting. They
+are not reproducible today and should not be read as the convention.
 
 ---
 
@@ -260,10 +311,25 @@ forking is the honest option rather than the lazy one.
 
 ## Branch protection and rulesets
 
-**Nothing is enforced today.** `GET /orgs/mzizi-dev/rulesets` returns `[]`.
+**Corrected 2026-09-12. Enforcement now exists.** This section previously said
+`GET /orgs/mzizi-dev/rulesets` returns `[]`. It returns two rulesets:
+
+| Ruleset                                 | Scope                                                                    | Enforcement | What it does                                                                                                                                                      |
+| --------------------------------------- | ------------------------------------------------------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `org-status-checks` (22953755)          | Org, default branches of `~ALL` repos except `sandbox-*` and `archive-*` | **active**  | Requires the five `lint / *` contexts — `actionlint`, `JSON validity`, `prettier`, `markdownlint`, `yamllint` — with `strict_required_status_checks_policy: true` |
+| `enterprise-main-protection` (22953540) | Inherited from the enterprise; not readable on the org endpoint          | `evaluate`  | Reports without blocking                                                                                                                                          |
+
+Two things follow from the active one. **`strict` means a branch must be up to
+date with the base before it can merge**, so a PR that sat while `main` moved
+needs a rebase before auto-merge will fire. And **the five contexts are exact
+strings**: they come from a job called `lint` calling a reusable workflow whose
+jobs are named `actionlint`, `JSON validity` and so on, published as
+`<caller job> / <called job>`. Converting the caller to a matrix publishes
+`lint (actionlint)` instead and satisfies nothing. Copy
+`.github/workflows/lint.yml` as-is.
+
 No repo has classic branch protection — every one returns "Branch not
-protected". There is exactly one ruleset in the entire org, and it is
-repo-level:
+protected". Beneath the org rulesets, one repo-level ruleset exists:
 
 **`mzizi-registry` → ruleset "Default"** (id 14801708, active, no bypass
 actors):
@@ -274,8 +340,11 @@ actors):
 | `pull_request`            | 0 approvals required, review-thread resolution off, `allowed_merge_methods: ["merge", "squash", "rebase"]` |
 | `required_status_checks`  | `Lint`, `Type Check`, `Build`, `Security Audit`, `Test`                                                    |
 
-That ruleset is the org's only worked example of required status checks, and
-it is also broken — see gap 4.
+**2026-09-12:** `mzizi-registry` now carries the org's `org-status-checks`
+ruleset on top of this one, and its `required_linear_history` rule is no longer
+in conflict with the org's merge settings — rebase merges are linear. Its
+`allowed_merge_methods: ["merge", "squash", "rebase"]` is now wider than the
+repo settings permit, which is harmless: the settings are the narrower gate.
 
 Proposed replacements live in [`github-rulesets/`](./github-rulesets) as
 versioned JSON:
@@ -283,12 +352,17 @@ versioned JSON:
 - **`org-wide-main-protection.json`** — `deletion`, `non_fast_forward`,
   `required_signatures`, and a `pull_request` rule with
   `allowed_merge_methods: ["merge"]`. Deliberately **no**
-  `required_linear_history`, for the reason above.
+  `required_linear_history`. **2026-09-12: both of those choices are now
+  wrong.** `["merge"]` names the one method the org has disabled, and
+  `required_linear_history` is now the org's actual shape. This file needs
+  rewriting to `["rebase"]` before it is ever applied.
 - **`release-tag-protection.json`** — makes `v*` tags immutable.
 
-**Neither is applied.** Applying an org ruleset changes what can merge across
-nine repos at once; that is a human decision, and the apply command is in
-each file's `_comment`. Two things to settle before applying:
+**Neither is applied**, and `org-status-checks` — which _is_ applied — was
+created outside this directory, so these two JSON files are no longer a
+complete picture of the org's rulesets. Applying an org ruleset changes what
+can merge across nine repos at once; that is a human decision, and the apply
+command is in each file's `_comment`. Two things to settle before applying:
 
 - `required_signatures` rejects any unsigned commit, including from a bot
   that is not configured to sign. Confirm every author signs, or drop that
@@ -302,22 +376,23 @@ each file's `_comment`. Two things to settle before applying:
 
 ## Repository settings, as they actually are
 
-Uniform across all nine unless noted.
+Re-read on 2026-09-12. Uniform across all nine unless noted.
 
-| Setting                                     | Value                                                                                             | Note                                                     |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `allow_merge_commit`                        | true                                                                                              | The only permitted method                                |
-| `allow_squash_merge` / `allow_rebase_merge` | false                                                                                             | MIGRATION.md §1.1                                        |
-| `merge_commit_title`                        | `MERGE_MESSAGE`                                                                                   | "Merge pull request #N from …"                           |
-| `merge_commit_message`                      | `PR_TITLE`                                                                                        | The PR title becomes the body                            |
-| `delete_branch_on_merge`                    | **true** on all nine                                                                              | Already correct — no cleanup needed                      |
-| `allow_auto_merge`                          | true on `mzizi-registry`, `mzizi-api-gateway`, `agent-tools`; **false** on the other six          | Inconsistent                                             |
-| `has_wiki`                                  | false on `mzizi`, `mzizi-registry`, `mzizi-api-gateway`, `mzizi-site`; **true** on the other five | Unused surface, on by default                            |
-| Licence                                     | Apache-2.0 on seven; **none** on `mzizi-roadmap` and `.github`                                    |                                                          |
-| Secret scanning                             | **enabled on 2 of 8 public repos** — `mzizi-registry`, `mzizi-api-gateway`                        |                                                          |
-| Secret scanning push protection             | Same two                                                                                          |                                                          |
-| Dependabot security updates                 | **disabled on all nine**                                                                          |                                                          |
-| Private vulnerability reporting             | **enabled on 2 of 8** — `mzizi`, `mzizi-registry`. Not available on `agent-tools` (private repo)  | Determines where a security report can actually be filed |
+| Setting                         | Value                                                                                             | Note                                                                                       |
+| ------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `allow_rebase_merge`            | **true on all nine**                                                                              | The only permitted method. **Changed 2026-09-12** — was false                              |
+| `allow_merge_commit`            | **false on all nine**                                                                             | **Changed 2026-09-12** — was true, and was documented as the only method                   |
+| `allow_squash_merge`            | false on all nine                                                                                 | Unchanged                                                                                  |
+| `allow_auto_merge`              | **true on all nine**                                                                              | **Changed 2026-09-12** — was true on three. `gh pr merge --rebase --auto` works everywhere |
+| `merge_commit_title`            | `MERGE_MESSAGE`                                                                                   | Vestigial — no merge commit can be produced                                                |
+| `merge_commit_message`          | `PR_TITLE`                                                                                        | Vestigial, same reason                                                                     |
+| `delete_branch_on_merge`        | true on all nine                                                                                  | Already correct — no cleanup needed                                                        |
+| `has_wiki`                      | false on `mzizi`, `mzizi-registry`, `mzizi-api-gateway`, `mzizi-site`; **true** on the other five | Unused surface, on by default                                                              |
+| Licence                         | Apache-2.0 on eight; **none** on `.github`. **`mzizi-roadmap` now has one**                       | 2026-09-12                                                                                 |
+| Secret scanning                 | **enabled on 2 of 8 public repos** — `mzizi-registry`, `mzizi-api-gateway`                        |                                                                                            |
+| Secret scanning push protection | Same two                                                                                          |                                                                                            |
+| Dependabot security updates     | **disabled on all nine**                                                                          |                                                                                            |
+| Private vulnerability reporting | **enabled on 2 of 8** — `mzizi`, `mzizi-registry`. Not available on `agent-tools` (private repo)  | Determines where a security report can actually be filed                                   |
 
 ---
 
@@ -352,6 +427,33 @@ security to a private advisory), `SECURITY.md`, `CONTRIBUTING.md`,
 
 ---
 
+## Writing a README
+
+**Added 2026-09-12.** How a repository opens is no longer a per-org question.
+The derived, estate-wide standard is `README-STANDARD.md` in the `nyuchi` org's
+`.github` repository, proposed in
+[`nyuchi/.github#62`](https://github.com/nyuchi/.github/pull/62). It applies to
+all seven orgs — `mzizi-dev`, `mukoko-dev`, `nyuchi`, `bundu-labs`,
+`shamwari-ai`, `openNTL`, `siafuDB` — and it is derived from the three READMEs
+in the estate that already worked, one of which is `mzizi-dev/mzizi-registry`.
+
+**That pull request is open and unmerged**, so the file is not on
+`nyuchi/.github`'s default branch and a link to the blob would 404. Read it on
+the pull request until it lands.
+
+What it settles, so this document does not have to restate it: a twelve-part
+shape, six parts of which are required in every repo however small; the rule
+that a README which is wrong is worse than one that is thin; curl every badge
+and every URL before committing it; and the Bundu Foundation governance line.
+It also carries the branding facts that keep going stale in this org's READMEs
+— the palette is **21 colour families** (7 minerals, 7 heritage, 7
+experimental), not five and not seven; the architecture is the **DNA double
+helix**, and "axis", "axes" and "layer" are retired vocabulary; **there is no
+database** behind the registry, which is disk; and `docs.mzizi.dev` does not
+resolve and must not be linked.
+
+---
+
 ## Known gaps
 
 Verified 2026-09-11. These are documented, not fixed — several are one-line
@@ -383,16 +485,13 @@ everything to `mzizi`, which is a workaround, not a fix. **Fix:
 `gh api -X PUT repos/mzizi-dev/<repo>/private-vulnerability-reporting` per
 repo.**
 
-**4. `mzizi-registry`'s ruleset contradicts the merge-only convention.** Its
-"Default" ruleset requires `required_linear_history`, which blocks merge
-commits — while the repo's only enabled merge method _is_ the merge commit.
-The next PR merged there with the merge button should be rejected by the
-ruleset. Stated as a prediction rather than an observation, honestly: the
-last merges on that repo (PRs #317, #318, 2026-09-08) produced single-parent
-commits in squash format, so they pre-date the merge-only settings and no
-merge commit has been attempted against the rule yet. **Fix: drop
-`required_linear_history` from that ruleset and set `allowed_merge_methods`
-to `["merge"]`.**
+**4. ~~`mzizi-registry`'s ruleset contradicts the merge-only convention.~~
+Resolved 2026-09-12 — by the org moving, not by anyone fixing it.** The
+"Default" ruleset's `required_linear_history` used to block the org's only
+enabled merge method. The org is now rebase-only and rebase merges are linear,
+so the rule and the settings agree. The proposed fix recorded here — set
+`allowed_merge_methods` to `["merge"]` — would now do the opposite of the right
+thing, and `github-rulesets/org-wide-main-protection.json` still contains it.
 
 **5. Secret scanning and push protection are off on six of eight public
 repos**, including `mzizi` itself. Push protection stops a secret reaching
@@ -417,9 +516,13 @@ workflow should move here, though the migration order it documents (add the
 check contexts to rulesets in the right sequence or every PR blocks) is real
 and should be followed if it does.
 
-**8. No `required_status_checks` in the proposed org ruleset.** Deliberate —
-naming a context that has never reported blocks every PR. Add per repo after
-CI has run once and the exact names are readable off a completed run.
+**8. ~~No `required_status_checks` in the proposed org ruleset.~~ Overtaken
+2026-09-12.** The concern was real — naming a context that has never reported
+blocks every PR — and it was solved in the opposite order to the one proposed
+here: the org lint gate (`.github/workflows/lint.yml`) was adopted in every
+repo first, and only then was the `org-status-checks` ruleset made active with
+the five `lint / *` contexts it emits. The unapplied JSON in
+`github-rulesets/` still says no contexts, and no longer describes the org.
 
 **9. Trigger filters are inconsistent.** The three Rust repos filter pull
 requests on `[main, "claude/**"]`; `mzizi-registry` filters on `[main]`
@@ -428,21 +531,27 @@ alone. Stacked PRs target the branch below them in the stack, so on
 checks — and a PR with nothing run is visually indistinguishable from a
 passing one.
 
-**10. Three repos have no CI because they have nearly no content.**
-`mzizi-site` is completely empty (no commits); `mzizi-docs` and
-`mzizi-roadmap` hold a README. Nothing to fix until there is something to
-check — noted so the absence is not mistaken for an oversight.
+**10. ~~Three repos have no CI because they have nearly no content.~~ Resolved
+2026-09-12.** `mzizi-site` now holds the Astro site that serves the apex,
+`mzizi-docs` holds the full Mintlify site, and all nine repos — `mzizi-roadmap`
+included — carry the org lint gate. The claim that `mzizi-site` is "completely
+empty (no commits)" was true when written and is emphatically not now: it is
+the repository serving `mzizi.dev`.
 
-**11. `mzizi-roadmap` may be vestigial.** `mzizi`'s history contains
-`docs: fold mzizi-dev/mzizi-roadmap into design/ROADMAP.md` (PR #3, merged).
-If the fold is complete, the repo should be archived rather than left as a
-second place a roadmap might live — which `MIGRATION.md` §1 explicitly warns
-against: "do not leave a roadmap living apart from the code it plans."
-
-**12. `allow_auto_merge` and `has_wiki` are inconsistent across repos.**
-Cosmetic, but `has_wiki: true` on five repos leaves an unused, unwatched
-surface open on a public org. `mzizi-roadmap` and `.github` also carry no
-licence.
+**11. `mzizi-roadmap` is vestigial, its README says so, and the repository is
+still not archived.** The fold into `mzizi/design/ROADMAP.md` is complete and
+`mzizi-roadmap/README.md` describes itself as archived and read-only.
+Re-checked 2026-09-12: `GET /repos/mzizi-dev/mzizi-roadmap` reports
+`archived: false`. The repo is public and writable, so the README makes a claim
+about GitHub state that GitHub does not agree with. **Fix:
+`gh api -X PATCH repos/mzizi-dev/mzizi-roadmap -f archived=true`** — one call,
+which also settles `MIGRATION.md` §1's warning against leaving a roadmap living
+apart from the code it plans.
+**12. `has_wiki` is inconsistent across repos.** Cosmetic, but `has_wiki: true`
+on five repos leaves an unused, unwatched surface open on a public org.
+**2026-09-12:** `allow_auto_merge` is no longer part of this gap — it is now
+true on all nine. `mzizi-roadmap` has gained a licence; `.github` still has
+none.
 
 **13. GitHub can enforce SHA-pinning org-wide, and it is switched off.**
 `GET /orgs/mzizi-dev/actions/permissions` reports

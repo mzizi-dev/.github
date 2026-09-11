@@ -12,13 +12,13 @@ in each repo today, and an explicit list of what does not exist yet.
 
 | Path | Applies to |
 |---|---|
-| [`.github/CODEOWNERS`](./.github/CODEOWNERS) | Every repo without its own |
+| [`.github/CODEOWNERS`](./.github/CODEOWNERS) | **This repo only.** CODEOWNERS is not inheritable — see [`CODEOWNERS.example`](./CODEOWNERS.example) |
 | [`.github/PULL_REQUEST_TEMPLATE.md`](./.github/PULL_REQUEST_TEMPLATE.md) | Every repo without its own |
 | [`.github/ISSUE_TEMPLATE/`](./.github/ISSUE_TEMPLATE) | Every repo without its own |
 | [`SECURITY.md`](./SECURITY.md) · [`CONTRIBUTING.md`](./CONTRIBUTING.md) · [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) · [`SUPPORT.md`](./SUPPORT.md) | Every repo without its own |
 | [`.github/workflows/reusable-*.yml`](./.github/workflows) | Any repo that calls them — opt-in, per repo |
 | [`github-rulesets/`](./github-rulesets) | Proposals. **Not applied.** |
-| [`dependabot.example.yml`](./dependabot.example.yml) | A template to copy — Dependabot has no org-wide fallback |
+| [`CODEOWNERS.example`](./CODEOWNERS.example) · [`dependabot.example.yml`](./dependabot.example.yml) | Templates to copy — neither CODEOWNERS nor Dependabot has an org-wide fallback |
 
 ## Reusable workflows
 

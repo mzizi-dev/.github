@@ -332,14 +332,23 @@ fallback repo held a one-line README.
 `.github/dependabot.yml`. Its own copies take precedence over anything here,
 so two of them being broken (gaps 1 and 2) is not something this repo can fix.
 
-What now applies org-wide by fallback: `.github/CODEOWNERS`,
-`.github/PULL_REQUEST_TEMPLATE.md`, `.github/ISSUE_TEMPLATE/` (bug form,
-feature form, and a `config.yml` routing security to a private advisory),
-`SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` (Contributor Covenant
-2.1) and `SUPPORT.md`.
+What now applies org-wide by fallback: `.github/PULL_REQUEST_TEMPLATE.md`,
+`.github/ISSUE_TEMPLATE/` (bug form, feature form, and a `config.yml` routing
+security to a private advisory), `SECURITY.md`, `CONTRIBUTING.md`,
+`CODE_OF_CONDUCT.md` (Contributor Covenant 2.1) and `SUPPORT.md`.
 
-**Dependabot does not have an org-wide fallback.** `.github/dependabot.yml`
-here covers only this repo; `dependabot.example.yml` is a template to copy.
+**Two things are NOT inheritable, and it is easy to assume otherwise.**
+
+- **CODEOWNERS.** GitHub's list of community health files an org `.github`
+  repo can supply as defaults is CODE_OF_CONDUCT.md, CONTRIBUTING.md,
+  discussion category forms, FUNDING.yml, issue and PR templates, SECURITY.md
+  and SUPPORT.md. CODEOWNERS is not on it, and the CODEOWNERS docs read the
+  file from `.github/`, the root, or `docs/` *of the repository*. So
+  `.github/CODEOWNERS` in this repo governs this repo and nothing else.
+  `CODEOWNERS.example` at the root is the template to copy into each repo.
+  This is gap 14.
+- **Dependabot.** `.github/dependabot.yml` here covers only this repo;
+  `dependabot.example.yml` is the template.
 
 ---
 
@@ -354,9 +363,10 @@ names `@nyuchi/core`. That is a team in the `nyuchi` org, not this one — and
 `nyuchi` has no `core` team either (its teams are docs, maintainers,
 marketing, mukoko, nyuchi-open-projects, platform, security). A team from
 another org cannot own code here in any case. Because a repo-local
-`CODEOWNERS` takes precedence, the largest repo in the org is the one this
-repo's `CODEOWNERS` does not reach. **Fix: a PR against `mzizi-registry`
-replacing `@nyuchi/core` with `@bryanfawcett`.**
+`CODEOWNERS` is the only kind there is — it is not inheritable from this repo
+(gap 14) — the largest repo in the org has no working review routing at all.
+**Fix: a PR against `mzizi-registry` replacing `@nyuchi/core` with
+`@bryanfawcett`.**
 
 **2. `mzizi-registry`'s `SECURITY.md` points at the old org.** It sends
 reporters to `https://github.com/nyuchi/mzizi/security/advisories/new`. The
@@ -429,6 +439,11 @@ If the fold is complete, the repo should be archived rather than left as a
 second place a roadmap might live — which `MIGRATION.md` §1 explicitly warns
 against: "do not leave a roadmap living apart from the code it plans."
 
+**12. `allow_auto_merge` and `has_wiki` are inconsistent across repos.**
+Cosmetic, but `has_wiki: true` on five repos leaves an unused, unwatched
+surface open on a public org. `mzizi-roadmap` and `.github` also carry no
+licence.
+
 **13. GitHub can enforce SHA-pinning org-wide, and it is switched off.**
 `GET /orgs/mzizi-dev/actions/permissions` reports
 `sha_pinning_required: false` (with `enabled_repositories: all` and
@@ -443,7 +458,13 @@ revisiting: every workflow in the org starts with a read-write `GITHUB_TOKEN`
 unless it narrows its own `permissions`, and `read` would be the safer
 default given all five workflows in this repo declare what they need.
 
-**12. `allow_auto_merge` and `has_wiki` are inconsistent across repos.**
-Cosmetic, but `has_wiki: true` on five repos leaves an unused, unwatched
-surface open on a public org. `mzizi-roadmap` and `.github` also carry no
-licence.
+**14. No repo has working CODEOWNERS, and this repo cannot fix that
+centrally.** CODEOWNERS is not an inheritable community health file (see
+[Community-health files](#community-health-files) for the citation), so the
+copy in this repo covers only this repo. `mzizi-registry` has the org's only
+other CODEOWNERS and it assigns nobody (gap 1). Every other repo has none.
+**Fix: copy `CODEOWNERS.example` into `.github/CODEOWNERS` in each repo — one
+small PR per repo, eight of them.** Worth doing before
+`require_code_owner_review` is ever turned on in a ruleset, because that
+setting against a repo with no CODEOWNERS does nothing, and against one with
+a broken CODEOWNERS blocks every PR.

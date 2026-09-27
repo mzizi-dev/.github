@@ -139,5 +139,5 @@ Not through a PR or an issue. See [SECURITY.md](./SECURITY.md).
 ## Licence
 
 Contributions are made under each repo's licence — Apache-2.0 for everything
-that has one today. Mzizi framework, components and compiler logic are Bundu
-Foundation IP (`mzizi/CHARTER.md`).
+that has one today. Mzizi framework, components and compiler logic are Mzizi IP
+(`mzizi/CHARTER.md`).

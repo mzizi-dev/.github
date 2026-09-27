@@ -110,5 +110,6 @@ summarises it.
 This repository carries no licence file. Everything it holds is org
 configuration and policy boilerplate rather than code.
 
-Mzizi is an open-architecture project of the **Bundu Foundation**, operated and
-developed by **Nyuchi**.
+Mzizi is an open-architecture project, owned and operated by **Mzizi**.
+**Nyuchi** operates the revenue products built on it — the Mzizi console,
+Fundi, paid plans and billing.

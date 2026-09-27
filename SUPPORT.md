@@ -40,6 +40,6 @@ the CLI or the skills and you cannot open an issue there, raise it on
 
 ## Response times
 
-Mzizi is a Bundu Foundation research project maintained by a small team. The
+Mzizi is a Mzizi research project maintained by a small team. The
 org has two members. Issues are read; a same-day reply is not promised.
 Security reports are acknowledged within three working days.

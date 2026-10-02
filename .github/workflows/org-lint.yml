@@ -1,0 +1,28 @@
+# Org-required lint. The mzizi-dev org ruleset names this file in a
+# "Require workflows to pass" rule, so GitHub runs it on every pull request
+# in every repo in the org — no per-repo .github/workflows/lint.yml needed.
+#
+# The job is called `lint` and calls nyuchi/.github's reusable workflow, so
+# its checks publish as the same five contexts as the per-repo caller:
+#   lint / actionlint, lint / JSON validity, lint / prettier,
+#   lint / markdownlint, lint / yamllint
+#
+# Each repo still ships .prettierrc, .prettierignore, .markdownlint.jsonc and
+# .yamllint.yaml at its root (the reusable workflow reads them).
+
+name: Org lint
+
+on:
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: org-lint-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    uses: nyuchi/.github/.github/workflows/reusable-lint.yml@main

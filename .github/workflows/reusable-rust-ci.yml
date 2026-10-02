@@ -94,7 +94,7 @@ jobs:
           echo "::error::clippy-on-target is true but target is empty. Set target, or set clippy-on-target to false."
           exit 1
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # Third-party action, pinned by commit SHA: a tag can be moved to point
       # at different code, a SHA cannot. This is the `stable` branch head of

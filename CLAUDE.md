@@ -12,15 +12,15 @@ relevant section before changing anything it describes.
 
 ## What it provides to the other mzizi-dev repos
 
-| Path | Reaches other repos how |
-| --- | --- |
-| `profile/README.md` | Rendered as the org page at github.com/mzizi-dev |
-| `.github/PULL_REQUEST_TEMPLATE.md`, `.github/ISSUE_TEMPLATE/`, `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SUPPORT.md` | GitHub community-health fallback for any repo that lacks its own copy (only `mzizi-registry` ships its own today) |
-| `.github/workflows/reusable-*.yml` | Opt-in, via `on: workflow_call` |
-| `.github/workflows/org-lint.yml` | Named in the org ruleset's "Require workflows to pass" rule, so it runs on **every PR in every org repo** |
-| `workflow-templates/lint.yml` + `.properties.json` | Org starter workflow offered in each repo's Actions tab |
-| `CODEOWNERS.example`, `dependabot.example.yml` | Templates to copy. CODEOWNERS and Dependabot have no org fallback; `.github/CODEOWNERS` and `.github/dependabot.yml` here govern this repo only |
-| `github-rulesets/*.json` | Proposals applied by hand with `gh api --input`; not applied automatically |
+| Path                                                                                                                                | Reaches other repos how                                                                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `profile/README.md`                                                                                                                 | Rendered as the org page at github.com/mzizi-dev                                                                                                |
+| `.github/PULL_REQUEST_TEMPLATE.md`, `.github/ISSUE_TEMPLATE/`, `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SUPPORT.md` | GitHub community-health fallback for any repo that lacks its own copy (only `mzizi-registry` ships its own today)                               |
+| `.github/workflows/reusable-*.yml`                                                                                                  | Opt-in, via `on: workflow_call`                                                                                                                 |
+| `.github/workflows/org-lint.yml`                                                                                                    | Named in the org ruleset's "Require workflows to pass" rule, so it runs on **every PR in every org repo**                                       |
+| `workflow-templates/lint.yml` + `.properties.json`                                                                                  | Org starter workflow offered in each repo's Actions tab                                                                                         |
+| `CODEOWNERS.example`, `dependabot.example.yml`                                                                                      | Templates to copy. CODEOWNERS and Dependabot have no org fallback; `.github/CODEOWNERS` and `.github/dependabot.yml` here govern this repo only |
+| `github-rulesets/*.json`                                                                                                            | Proposals applied by hand with `gh api --input`; not applied automatically                                                                      |
 
 Consumers call the reusable workflows by path and ref:
 

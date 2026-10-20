@@ -8,13 +8,17 @@ name: PR title
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
+  # Required checks must also report on a merge queue's gh-readonly-queue/**
+  # ref, or a queued PR waits until the queue times it out. The lint job skips
+  # itself there (no PR, no title) and a skipped check counts as passed.
+  merge_group:
 
 permissions:
   pull-requests: read
   statuses: write
 
 concurrency:
-  group: pr-title-${{ github.event.pull_request.number }}
+  group: pr-title-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:

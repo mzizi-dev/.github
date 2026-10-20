@@ -53,8 +53,12 @@ jobs:
     # (commit-message.prefix controls only the prefix). Relaxing the pattern
     # to permit uppercase would weaken it for humans too. Add other bots to
     # this list rather than loosening the regex.
+    # A merge queue runs required checks on a gh-readonly-queue/** ref with
+    # no pull request attached, so there is no title to lint; it was linted
+    # on the PR before it was queued. Skipped counts as passed.
     if: >-
-      ${{ github.event.pull_request.user.login != 'dependabot[bot]'
+      ${{ github.event_name != 'merge_group'
+          && github.event.pull_request.user.login != 'dependabot[bot]'
           && github.event.pull_request.user.login != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
     steps:

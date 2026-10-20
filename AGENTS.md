@@ -1,6 +1,11 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for every AI coding agent (Claude Code, Cursor, Copilot and the
+rest) working in this repository. Org `.github` repos keep agent rules in
+`AGENTS.md` only: no `CLAUDE.md` and no `.claude/` directory. The
+enterprise-wide agent rules are in
+[`nyuchi/.github/AGENTS.md`](https://github.com/nyuchi/.github/blob/main/AGENTS.md);
+this file adds what is specific to `mzizi-dev`.
 
 ## What this repo is
 
@@ -87,5 +92,10 @@ The lint configs at the root (`.yamllint.yaml`, `.markdownlint.jsonc`,
   `--admin`); every commit lands on `main` as written. `README.md` and
   `ORG_STANDARDS.md` reflect this. `CONTRIBUTING.md` and the PR template still
   say merge-only and are stale on that point.
+- One writer per branch. Land with `gh pr merge <n> --rebase --auto`, which
+  joins the merge queue where `staging` requires one; every workflow whose
+  check is required must also trigger on `merge_group:`. Treat GitHub 5xx and
+  "merge already in progress" as wait, not failure. The full rules are in
+  `nyuchi/.github/AGENTS.md` § Branch ownership and landing.
 - Never link `docs.mzizi.dev` in new prose (it does not resolve); see
   `ORG_STANDARDS.md#writing-a-readme` for branding facts READMEs get wrong.

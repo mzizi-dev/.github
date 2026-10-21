@@ -88,12 +88,15 @@ The lint configs at the root (`.yamllint.yaml`, `.markdownlint.jsonc`,
   filters include `"claude/**"` so stacked PRs still get checks.
 - PR titles are Conventional Commits: lowercase, imperative subject, no
   trailing period (a subject starting with an all-caps word fails).
-- The org is **rebase-only** (`gh pr merge <n> --rebase --auto`, never
-  `--admin`); every commit lands on `main` as written. `README.md` and
-  `ORG_STANDARDS.md` reflect this. `CONTRIBUTING.md` and the PR template still
-  say merge-only and are stale on that point.
-- One writer per branch. Land with `gh pr merge <n> --rebase --auto`, which
-  joins the merge queue where `staging` requires one; every workflow whose
+- Squash merges through the merge queue: `gh pr merge <n> --squash --auto`.
+  Never `--admin`. The squash commit keeps every commit message in its body
+  (`COMMIT_MESSAGES`), so the per-commit reasoning is preserved. Rebase and
+  merge commits are disabled (repo settings and rulesets, 2026-10-21).
+  Updating a branch with the base (GitHub's "Update branch") is fine; the
+  squash makes `main` linear. The merge queue tests each PR against the latest
+  base.
+- One writer per branch. Land with `gh pr merge <n> --squash --auto`, which
+  joins the merge queue on `staging` and `main`; every workflow whose
   check is required must also trigger on `merge_group:`. Treat GitHub 5xx and
   "merge already in progress" as wait, not failure. The full rules are in
   `nyuchi/.github/AGENTS.md` § Branch ownership and landing.

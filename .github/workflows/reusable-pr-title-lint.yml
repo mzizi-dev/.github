@@ -8,25 +8,21 @@
 #       uses: mzizi-dev/.github/.github/workflows/reusable-pr-title-lint.yml@main
 #
 # ---------------------------------------------------------------------------
-# What this does and does not claim, in a merge-only org
+# What this does and does not claim, in a squash-merge org
 # ---------------------------------------------------------------------------
 # In a squash-merge org, linting the PR title is really linting the commit
-# subject that lands on main. mzizi-dev does not squash — squash and rebase
-# merging are disabled on all nine repos, because "squash discards the
-# per-commit reasoning this project depends on" (mzizi/MIGRATION.md §1.1).
+# subject that lands on main. mzizi-dev squash-merges through a merge queue
+# (rebase and merge commits disabled, 2026-10-21), so that is what this gate
+# guards. The squash commit message is the PR title plus the commit details
+# (COMMIT_MESSAGES), which means the squash commit reads:
 #
-# So be precise about what this gate is worth here. Every repo is set to
-# merge_commit_title=MERGE_MESSAGE and merge_commit_message=PR_TITLE
-# (verified across all nine, 2026-09-11), which means the merge commit reads:
+#   feat(ci): add the rust reusable workflow (#12)
 #
-#   Merge pull request #12 from mzizi-dev/claude/org-defaults
+#   * <each commit's message, in order>
 #
-#   feat(ci): add the rust reusable workflow
-#
-# The PR title is the merge commit BODY, and it is the one line that
-# summarises the whole branch in `git log --first-parent`. Your individual
-# commits keep their own messages untouched — that is the point of merge-only,
-# and this check does not inspect them.
+# The PR title is the squash commit's SUBJECT, the one line that summarises
+# the whole branch in `git log`. The individual commit messages are kept in
+# its body, and this check does not inspect them.
 #
 # The allowed types track CONTRIBUTING.md. Change both together.
 

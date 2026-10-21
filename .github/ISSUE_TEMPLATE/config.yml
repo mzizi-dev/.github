@@ -17,4 +17,4 @@ contact_links:
     about: What CI actually runs in each repo today, and the known gaps.
   - name: Contributing
     url: https://github.com/mzizi-dev/.github/blob/main/CONTRIBUTING.md
-    about: How to open a PR here, including why this org is merge-only.
+    about: How to open a PR here, including how this org merges (squash, through a merge queue).

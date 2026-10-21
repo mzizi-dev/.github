@@ -5,38 +5,46 @@ overrides it — today only `mzizi-registry` has one.
 
 ## The one thing that is different here
 
-**This org is merge-only.** Squash merging and rebase merging are disabled on
-all nine repos. This is deliberate, not an oversight, and the reason is
-written down in `mzizi-dev/mzizi`'s `MIGRATION.md` §1.1:
+**This org squash-merges through a merge queue.** Rebase and merge commits are
+disabled (repo settings and rulesets, 2026-10-21). The squash keeps every
+commit message in its body, so the reasoning that `mzizi-dev/mzizi`'s
+`MIGRATION.md` §1.1 protects (_"squash discards the per-commit reasoning this
+project depends on"_) is preserved:
 
-| Allow merge commits | **yes** | The ecosystem convention is merge-only; history stays truthful |
-| Allow squash merging | **no** | Squash discards the per-commit reasoning this project depends on |
-| Allow rebase merging | **no** | Same |
+| Setting               | Value                                       |
+| --------------------- | ------------------------------------------- |
+| Allow squash merging  | **yes** — the only method                   |
+| Squash commit message | PR title + commit details (COMMIT_MESSAGES) |
+| Allow rebase merging  | **no**                                      |
+| Allow merge commits   | **no**                                      |
+| Merge queue           | SQUASH, on `staging` and `main`             |
 
-So: **your commits land on `main` exactly as you wrote them, and stay there.**
-That changes how you should work.
+So: **your commit messages land on `main` in the squash commit's body, in
+order, and stay there.** That changes how you should work.
 
 - Write each commit as a coherent step, with a message that explains _why_.
-  Nobody is going to squash your "wip" and "fix typo" commits away for you.
+  Its message is kept in the squash commit's body.
 - Clean the branch up before requesting review — `git rebase -i` on your own
   branch, not on `main`.
-- Do not merge `main` into your branch to resolve a conflict. Rebase your
-  branch onto `main`, then let the PR merge produce the single merge commit.
-- Merge with `gh pr merge <n> --merge --delete-branch`. `--squash` and
-  `--rebase` will be rejected by the repo settings.
+- Updating a branch with the base (GitHub's "Update branch") is fine; the
+  squash makes `main` linear. The merge queue tests each PR against the latest
+  base.
+- Merge with `gh pr merge <n> --squash --auto`, which adds the PR to the merge
+  queue. Never `--admin`. `--merge` and `--rebase` will be rejected by the repo
+  settings.
 
-The merge commit reads:
+The squash commit reads:
 
 ```
-Merge pull request #12 from mzizi-dev/claude/org-defaults
+feat(ci): add the rust reusable workflow (#12)
 
-feat(ci): add the rust reusable workflow
+* feat(ci): add the rust reusable workflow
+
+  <each commit's message, in order>
 ```
 
-Every repo is configured `merge_commit_title=MERGE_MESSAGE`,
-`merge_commit_message=PR_TITLE`, so the PR title is the body — the one line
-that summarises your whole branch in `git log --first-parent`. Write it as
-carefully as a commit subject.
+The PR title is the squash commit's subject — the one line that summarises
+your whole branch in `git log`. Write it as carefully as a commit subject.
 
 ## Branches
 

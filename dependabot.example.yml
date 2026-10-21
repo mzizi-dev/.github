@@ -11,6 +11,7 @@ version: 2
 updates:
   # ---- Every repo with workflows ----
   - package-ecosystem: github-actions
+    target-branch: "staging"
     directory: "/"
     schedule:
       interval: weekly
@@ -24,6 +25,7 @@ updates:
   # `directory` must point at the directory holding Cargo.toml. In `mzizi`
   # that is `/compiler`, not `/`.
   - package-ecosystem: cargo
+    target-branch: "staging"
     directory: "/"
     schedule:
       interval: weekly
@@ -43,6 +45,7 @@ updates:
 
   # ---- npm/pnpm: mzizi-registry, mzizi-console (the Astro half), agent-tools ----
   - package-ecosystem: npm
+    target-branch: "staging"
     directory: "/"
     schedule:
       interval: weekly

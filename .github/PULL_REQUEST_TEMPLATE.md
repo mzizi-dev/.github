@@ -8,16 +8,16 @@
 <!-- The reasoning the diff cannot express. If it closes an issue, say
      "Closes #123". If it follows another PR, link it.
 
-     This section matters more here than in most orgs. mzizi-dev is
-     MERGE-ONLY — squash and rebase merging are disabled on all nine repos,
-     because "squash discards the per-commit reasoning this project depends
-     on" (mzizi/MIGRATION.md §1.1). Your individual commits survive on main
-     forever. Write them, and this, for the person reading them in a year. -->
+     This section matters more here than in most orgs. mzizi-dev squash-merges
+     through a merge queue, and the squash commit keeps every commit message
+     in its body (COMMIT_MESSAGES), so the per-commit reasoning
+     mzizi/MIGRATION.md §1.1 protects survives on main forever. Write your
+     commits, and this, for the person reading them in a year. -->
 
 ## Commits
 
 - [ ] Each commit is a coherent step with a message that says _why_, not
-      just _what_. They are not going to be squashed away.
+      just _what_. Each message is kept in the squash commit's body.
 - [ ] No "fix typo" / "address review" commits left in the history — fold
       them into the commit they belong to before requesting review.
 

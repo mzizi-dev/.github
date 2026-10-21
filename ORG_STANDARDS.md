@@ -9,6 +9,18 @@ If you are adding CI to a repo in this org, the two sections worth reading
 first are [The merge convention](#the-merge-convention) and
 [Rust CI: the WASM trap](#rust-ci-the-wasm-trap).
 
+> **Update, 2026-10-21: the org squash-merges through a merge queue.**
+> With the owner's approval, every repository moved from rebase-only to
+> squash merging through a GitHub merge queue: `allow_squash_merge` true,
+> rebase and merge commits off, squash message = PR title + commit details
+> (`COMMIT_MESSAGES`), a SQUASH merge queue on `staging` and `main`, "require
+> branches to be up to date" off, auto-merge on, merged branches deleted.
+> Land with `gh pr merge <n> --squash --auto`. [The merge
+> convention](#the-merge-convention) and the settings table are updated; the
+> 2026-09-12 correction below is kept as the record of the previous change.
+>
+> ---
+>
 > **Correction, 2026-09-12**
 >
 > **This document said the org was merge-only. It is now rebase-only, and the
@@ -75,58 +87,54 @@ reviewable, was closed unmerged. `mzizi-site/README.md` records the sequence.
 
 ## The merge convention
 
-**Corrected 2026-09-12. This section previously said the opposite, and said it
-with a verification note attached, which is why it is worth reading twice.**
+**Changed 2026-10-21, with the owner's approval. This section said
+rebase-only from 2026-09-12, and merge-only before that.**
 
-**Rebase merging is the only method enabled on all nine repos. Merge commits
-and squash merging are both disabled, and auto-merge is on everywhere.** Read
-off the API per repo on 2026-09-12:
+**Squash merges through the merge queue. Rebase and merge commits are disabled
+(repo settings and rulesets, 2026-10-21).** Verified on every repo:
 
-| Setting              | Value on all nine | Was, on 2026-09-11 |
-| -------------------- | ----------------- | ------------------ |
-| `allow_rebase_merge` | **true**          | false              |
-| `allow_merge_commit` | **false**         | true               |
-| `allow_squash_merge` | false             | false              |
-| `allow_auto_merge`   | **true**          | true on three      |
-
-This matches all 75 repositories in the Bundu Foundation enterprise, so it is
-an estate-wide setting rather than a decision taken in this org.
+| Setting                       | Value since 2026-10-21                 | Was, on 2026-09-12 |
+| ----------------------------- | -------------------------------------- | ------------------ |
+| `allow_squash_merge`          | **true**                               | false              |
+| `allow_rebase_merge`          | **false**                              | true               |
+| `allow_merge_commit`          | false                                  | false              |
+| `allow_auto_merge`            | true                                   | true               |
+| `squash_merge_commit_message` | `COMMIT_MESSAGES` (PR title + commits) | —                  |
+| Merge queue                   | **SQUASH, on `staging` and `main`**    | none               |
+| Require up to date            | **off**                                | strict             |
+| `delete_branch_on_merge`      | true                                   | true               |
 
 Merge with:
 
 ```sh
-gh pr merge <n> --rebase --auto
+gh pr merge <n> --squash --auto
 ```
 
-`--merge` and `--squash` are now what the repo settings reject. Never
-`--admin`.
+`--auto` adds the PR to the merge queue. `--merge` and `--rebase` are what the
+repo settings reject. Never `--admin`.
 
 ### What this displaces
 
 `mzizi-dev/mzizi`'s `MIGRATION.md` §1.1 argued for merge-only on the grounds
 that _"squash discards the per-commit reasoning this project depends on"_.
-**Rebase preserves that reasoning**: every commit on the branch lands on `main`
-individually, in order, with its message intact. What is lost is the merge
-commit itself — the two-parent node and the `Merge pull request #N from …`
-line that `git log --first-parent` used to summarise a branch with.
+**This squash keeps that reasoning**: the squash commit keeps every commit
+message in its body (`COMMIT_MESSAGES`), in order. What is lost is each commit
+as a separate object on `main`, so `git bisect` stops at the pull request.
 
 Three consequences:
 
-**1. Your commits are still permanent, exactly as written.** Nothing folds
-them together. Clean the branch up with an interactive rebase _on your own
-branch_ before requesting review, and write messages that explain why. This
-part did not change.
+**1. Your commit messages are still permanent, exactly as written**, in the
+squash commit's body. Clean the branch up with an interactive rebase _on your
+own branch_ before requesting review, and write messages that explain why.
 
-**2. `merge_commit_title` / `merge_commit_message` no longer do anything.**
-Every repo still reports `MERGE_MESSAGE` / `PR_TITLE`, but with
-`allow_merge_commit: false` no merge commit can be produced, so the PR title
-never reaches `main` in any form. A PR-title lint is now purely a review-time
-convention — it guards nothing in the history. Worth keeping, worth being
-honest about what it does.
+**2. The PR title is the squash commit's subject.** A PR-title lint now guards
+the one line every commit on `main` leads with. `merge_commit_title` /
+`merge_commit_message` stay vestigial: no merge commit can be produced.
 
-**3. `required_linear_history` is now consistent with the org**, where it used
-to contradict it. Rebase merges produce linear history by construction. Gap 4
-below is resolved by this change rather than by anyone fixing it.
+**3. `required_linear_history` is consistent with the org.** Squash merges
+produce linear history by construction. Updating a branch with the base
+(GitHub's "Update branch") is fine; the squash makes `main` linear. The merge
+queue tests each PR against the latest base.
 
 **A note on the history in this repo.** `mzizi`, `mzizi-api-gateway` and
 `agent-tools` carry two-parent `Merge pull request #N from mzizi-dev/...`
@@ -319,11 +327,11 @@ forking is the honest option rather than the lazy one.
 | `org-status-checks` (22953755)          | Org, default branches of `~ALL` repos except `sandbox-*` and `archive-*` | **active**  | Requires the five `lint / *` contexts — `actionlint`, `JSON validity`, `prettier`, `markdownlint`, `yamllint` — with `strict_required_status_checks_policy: true` |
 | `enterprise-main-protection` (22953540) | Inherited from the enterprise; not readable on the org endpoint          | `evaluate`  | Reports without blocking                                                                                                                                          |
 
-Two things follow from the active one. **`strict` means a branch must be up to
-date with the base before it can merge**, so a PR that sat while `main` moved
-needs a rebase before auto-merge will fire. And **the five contexts are exact
-strings**: they come from a job called `lint` calling a reusable workflow whose
-jobs are named `actionlint`, `JSON validity` and so on, published as
+Two things follow from the active one. **`strict` meant a branch must be up to
+date with the base before it can merge.** **2026-10-21:** "require branches to
+be up to date" is off; the merge queue tests each PR against the latest base.
+And **the five contexts are exact strings**: they come from a job called
+`lint` calling a reusable workflow whose jobs are named `actionlint`, `JSON validity` and so on, published as
 `<caller job> / <called job>`. Converting the caller to a matrix publishes
 `lint (actionlint)` instead and satisfies nothing. Copy
 `.github/workflows/lint.yml` as-is.
@@ -354,8 +362,9 @@ versioned JSON:
   `allowed_merge_methods: ["merge"]`. Deliberately **no**
   `required_linear_history`. **2026-09-12: both of those choices are now
   wrong.** `["merge"]` names the one method the org has disabled, and
-  `required_linear_history` is now the org's actual shape. This file needs
-  rewriting to `["rebase"]` before it is ever applied.
+  `required_linear_history` is now the org's actual shape. **2026-10-21:** the
+  file now allows `["squash"]`, the org's one method, with
+  `required_linear_history`.
 - **`release-tag-protection.json`** — makes `v*` tags immutable.
 
 **Neither is applied**, and `org-status-checks` — which _is_ applied — was
@@ -376,23 +385,25 @@ command is in each file's `_comment`. Two things to settle before applying:
 
 ## Repository settings, as they actually are
 
-Re-read on 2026-09-12. Uniform across all nine unless noted.
+Re-read on 2026-09-12, and the merge rows on 2026-10-21. Uniform across all
+nine unless noted.
 
-| Setting                         | Value                                                                                             | Note                                                                                       |
-| ------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `allow_rebase_merge`            | **true on all nine**                                                                              | The only permitted method. **Changed 2026-09-12** — was false                              |
-| `allow_merge_commit`            | **false on all nine**                                                                             | **Changed 2026-09-12** — was true, and was documented as the only method                   |
-| `allow_squash_merge`            | false on all nine                                                                                 | Unchanged                                                                                  |
-| `allow_auto_merge`              | **true on all nine**                                                                              | **Changed 2026-09-12** — was true on three. `gh pr merge --rebase --auto` works everywhere |
-| `merge_commit_title`            | `MERGE_MESSAGE`                                                                                   | Vestigial — no merge commit can be produced                                                |
-| `merge_commit_message`          | `PR_TITLE`                                                                                        | Vestigial, same reason                                                                     |
-| `delete_branch_on_merge`        | true on all nine                                                                                  | Already correct — no cleanup needed                                                        |
-| `has_wiki`                      | false on `mzizi`, `mzizi-registry`, `mzizi-api-gateway`, `mzizi-site`; **true** on the other five | Unused surface, on by default                                                              |
-| Licence                         | Apache-2.0 on eight; **none** on `.github`. **`mzizi-roadmap` now has one**                       | 2026-09-12                                                                                 |
-| Secret scanning                 | **enabled on 2 of 8 public repos** — `mzizi-registry`, `mzizi-api-gateway`                        |                                                                                            |
-| Secret scanning push protection | Same two                                                                                          |                                                                                            |
-| Dependabot security updates     | **disabled on all nine**                                                                          |                                                                                            |
-| Private vulnerability reporting | **enabled on 2 of 8** — `mzizi`, `mzizi-registry`. Not available on `agent-tools` (private repo)  | Determines where a security report can actually be filed                                   |
+| Setting                         | Value                                                                                             | Note                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `allow_squash_merge`            | **true on every repo**                                                                            | The only permitted method, through the merge queue. **Changed 2026-10-21** — was false |
+| `squash_merge_commit_message`   | `COMMIT_MESSAGES` (PR title + commit details)                                                     | **2026-10-21.** The squash keeps every commit message                                  |
+| `allow_rebase_merge`            | **false on every repo**                                                                           | **Changed 2026-10-21** — was true, the only method from 2026-09-12                     |
+| `allow_merge_commit`            | **false on all nine**                                                                             | **Changed 2026-09-12** — was true, and was documented as the only method               |
+| `allow_auto_merge`              | **true on all nine**                                                                              | `gh pr merge --squash --auto` adds a PR to the merge queue (2026-10-21)                |
+| `merge_commit_title`            | `MERGE_MESSAGE`                                                                                   | Vestigial — no merge commit can be produced                                            |
+| `merge_commit_message`          | `PR_TITLE`                                                                                        | Vestigial, same reason                                                                 |
+| `delete_branch_on_merge`        | true on all nine                                                                                  | Already correct — no cleanup needed                                                    |
+| `has_wiki`                      | false on `mzizi`, `mzizi-registry`, `mzizi-api-gateway`, `mzizi-site`; **true** on the other five | Unused surface, on by default                                                          |
+| Licence                         | Apache-2.0 on eight; **none** on `.github`. **`mzizi-roadmap` now has one**                       | 2026-09-12                                                                             |
+| Secret scanning                 | **enabled on 2 of 8 public repos** — `mzizi-registry`, `mzizi-api-gateway`                        |                                                                                        |
+| Secret scanning push protection | Same two                                                                                          |                                                                                        |
+| Dependabot security updates     | **disabled on all nine**                                                                          |                                                                                        |
+| Private vulnerability reporting | **enabled on 2 of 8** — `mzizi`, `mzizi-registry`. Not available on `agent-tools` (private repo)  | Determines where a security report can actually be filed                               |
 
 ---
 
@@ -488,10 +499,10 @@ repo.**
 **4. ~~`mzizi-registry`'s ruleset contradicts the merge-only convention.~~
 Resolved 2026-09-12 — by the org moving, not by anyone fixing it.** The
 "Default" ruleset's `required_linear_history` used to block the org's only
-enabled merge method. The org is now rebase-only and rebase merges are linear,
-so the rule and the settings agree. The proposed fix recorded here — set
+enabled merge method. The org is now squash-only, through a merge queue
+(2026-10-21), and squash merges are linear, so the rule and the settings agree. The proposed fix recorded here — set
 `allowed_merge_methods` to `["merge"]` — would now do the opposite of the right
-thing, and `github-rulesets/org-wide-main-protection.json` still contains it.
+thing; `github-rulesets/org-wide-main-protection.json` now allows `["squash"]`.
 
 **5. Secret scanning and push protection are off on six of eight public
 repos**, including `mzizi` itself. Push protection stops a secret reaching

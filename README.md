@@ -5,7 +5,7 @@
 [![CI](https://github.com/mzizi-dev/.github/actions/workflows/ci.yml/badge.svg)](https://github.com/mzizi-dev/.github/actions/workflows/ci.yml)
 [![Lint](https://github.com/mzizi-dev/.github/actions/workflows/lint.yml/badge.svg)](https://github.com/mzizi-dev/.github/actions/workflows/lint.yml)
 
-**Org:** nine repositories | **Merge method:** rebase only | **Standard:** [ORG_STANDARDS.md](./ORG_STANDARDS.md)
+**Org:** nine repositories | **Merge method:** squash, through the merge queue | **Standard:** [ORG_STANDARDS.md](./ORG_STANDARDS.md)
 
 GitHub falls back to what lives here for any repo in the org that does not ship
 its own copy, and this is where the org's reusable workflows live.
@@ -47,41 +47,39 @@ jobs:
 No repo calls these yet — they are published here first so adoption is a
 reviewable PR per repo rather than a big-bang change. See ORG_STANDARDS.md.
 
-## This org is rebase-only
+## This org squash-merges through a merge queue
 
-**Corrected 2026-09-12. This section previously said the reverse, with a
-citation.**
+**Changed 2026-10-21, with the owner's approval. This section previously said
+rebase-only.**
 
-Rebase merging is the only method enabled on all nine repos. Merge commits and
-squash merging are both disabled, and auto-merge is on everywhere. Read off the
-API per repo on 2026-09-12:
+Squash merges through the merge queue. Rebase and merge commits are disabled
+(repo settings and rulesets, 2026-10-21). Verified on every repo:
 
 ```text
-allow_rebase_merge   true       (was: false)
-allow_merge_commit   false      (was: true — and documented here as the only method)
-allow_squash_merge   false      (unchanged)
-allow_auto_merge     true       (was: true on three of nine)
+allow_squash_merge   true       (was: false)
+allow_rebase_merge   false      (was: true)
+allow_merge_commit   false      (unchanged)
+allow_auto_merge     true       (unchanged)
+squash message       PR title + commit details (COMMIT_MESSAGES)
+merge queue          SQUASH, on staging and main
 ```
-
-All 75 repositories in the Bundu Foundation enterprise report the same, so this
-is an estate-wide setting and not a decision taken in this org.
 
 ```sh
-gh pr merge <n> --rebase --auto
+gh pr merge <n> --squash --auto
 ```
 
-`--merge` and `--squash` are what the repo settings now reject. Never
-`--admin`.
+`--auto` adds the PR to the merge queue. Never `--admin`. Merged branches are
+deleted.
 
-**Rebase still keeps every commit.** `mzizi/MIGRATION.md` §1.1 — _"squash
-discards the per-commit reasoning this project depends on"_ — argued against
-squash, and squash is still off. What rebase drops is the merge commit itself,
-so write your commits for the person reading them in a year; they land on
-`main` individually, in order, exactly as written.
+**The squash keeps every commit message.** `mzizi/MIGRATION.md` §1.1 — _"squash
+discards the per-commit reasoning this project depends on"_ — argued against a
+squash that keeps only the title. The squash commit here keeps every commit
+message in its body (`COMMIT_MESSAGES`), so the per-commit reasoning is
+preserved. Write your commits for the person reading them in a year.
 
-`org-status-checks`, an active org ruleset, requires the five `lint / *`
-contexts on every default branch and uses a strict policy, so a branch must be
-up to date with `main` before auto-merge will fire.
+"Require branches to be up to date" is off. Updating a branch with the base
+(GitHub's "Update branch") is fine; the squash makes `main` linear. The merge
+queue tests each PR against the latest base.
 [CONTRIBUTING.md](./CONTRIBUTING.md) and
 [ORG_STANDARDS.md](./ORG_STANDARDS.md#the-merge-convention) have the rest.
 

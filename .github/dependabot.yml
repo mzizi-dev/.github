@@ -17,6 +17,8 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
     commit-message:
       # Conventional Commits, to match the PR title lint. Dependabot
       # capitalises the word after the prefix ("ci: Bump ..."), which the

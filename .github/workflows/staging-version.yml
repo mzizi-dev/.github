@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   version:
-    uses: nyuchi/.github/.github/workflows/reusable-staging-release.yml@924e5b4d0983d31379aedbec02b990793f29c792 # main, 2026-10-04
+    uses: nyuchi/.github/.github/workflows/reusable-staging-release.yml@bb87d28e55c0c3c385121113900b698eb6ce8ab2  # v0.5.0
     with:
       bump: ${{ inputs.bump || '' }}
     permissions:

@@ -44,13 +44,33 @@ jobs:
     permissions:
       contents: write
     steps:
+      # Check out the default ref (main's tip), never the workflow_run's
+      # head_sha: the steps below tag and release from this tree with
+      # contents: write (Semgrep workflow-run-target-code-checkout; same
+      # fix as nyuchi/.github#115).
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           persist-credentials: false
+
+      # The triggering workflow passed on head_sha. If main has moved on
+      # since, that newer push runs it and this workflow again, so this run
+      # tags nothing.
+      - name: Release only the commit that passed
+        id: gate
+        if: github.event_name == 'workflow_run'
+        env:
+          PASSED: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          head="$(git rev-parse HEAD)"
+          if [ "$head" != "$PASSED" ]; then
+            echo "main is at $head, the check passed on $PASSED; the newer push releases itself."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Compute the next version
         id: v
+        if: steps.gate.outputs.skip != 'true'
         uses: nyuchi/.github/.github/actions/next-version@bb87d28e55c0c3c385121113900b698eb6ce8ab2  # v0.5.0
         with:
           channel: main
@@ -58,6 +78,7 @@ jobs:
           manual: ${{ github.event_name == 'workflow_dispatch' }}
 
       - name: Push the tag and release
+        if: steps.gate.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}

@@ -71,7 +71,7 @@ jobs:
       - name: Compute the next version
         id: v
         if: steps.gate.outputs.skip != 'true'
-        uses: nyuchi/.github/.github/actions/next-version@bb87d28e55c0c3c385121113900b698eb6ce8ab2  # v0.5.0
+        uses: nyuchi/.github/.github/actions/next-version@925d067322defd676dacd90f2c2b0540cb10f644  # v0.11.1
         with:
           channel: main
           bump: ${{ inputs.bump || '' }}

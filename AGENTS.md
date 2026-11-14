@@ -151,25 +151,45 @@ The lint configs at the root (`.yamllint.yaml`, `.markdownlint.jsonc`,
 
 ## Branches, releases and merging
 
-- Work branches off `staging` and open PRs into `staging`. Each push to
-  `staging` is tagged as the next patch (`staging-version.yml`); a successful CI
-  run on a push to `main` tags the next minor and creates a release
-  (`main-release.yml`). Both depend on `nyuchi/.github` pinned by SHA.
-- Branch prefixes: `feat/`, `fix/`, `docs/`, or `claude/` for agent work. PR
-  filters include `"claude/**"` so stacked PRs still get checks.
+- Work branches off `staging` and PRs land in `staging`. Each merge into
+  `staging` is tagged the next patch (`staging-version.yml`); a release to
+  `main` tags the next minor. Both use `nyuchi/.github`'s versioning
+  policy, pinned by SHA. Never hand-edit a version to a major.
+- Branch prefixes: `feat/`, `fix/`, `docs/`, or `claude/` for agent work.
 - PR titles are Conventional Commits: lowercase, imperative subject, no
   trailing period (a subject starting with an all-caps word fails).
-- Squash merges through the merge queue: `gh pr merge <n> --squash --auto`.
-  Never `--admin`. The squash commit keeps every commit message in its body
-  (`COMMIT_MESSAGES`), so the per-commit reasoning is preserved. Rebase and
-  merge commits are disabled (repo settings and rulesets, 2026-10-21).
-  Updating a branch with the base (GitHub's "Update branch") is fine; the
-  squash makes `main` linear. The merge queue tests each PR against the latest
-  base.
-- One writer per branch. Land with `gh pr merge <n> --squash --auto`, which
-  joins the merge queue on `staging` and `main`; every workflow whose
-  check is required must also trigger on `merge_group:`. Treat GitHub 5xx and
-  "merge already in progress" as wait, not failure. The full rules are in
-  `nyuchi/.github/AGENTS.md` § Branch ownership and landing.
+- Merges into `staging` are squash through the merge queue
+  (`gh pr merge <n> --squash --auto`); the squash body keeps every commit
+  message (`COMMIT_MESSAGES`). Updating a branch with its base is fine.
+- `staging` is promoted to `main` with a **merge commit**, never squash:
+  a merge commit keeps `main` at `staging` plus one merge, so the next
+  release cannot conflict and nothing diverges.
+- The default branch takes releases only: a PR into `main` must come from
+  `staging`, a `release/*` branch, or the registry pin bot
+  (`bot/registry-pin`). Everything else — features, fixes, Dependabot —
+  targets `staging`.
+- Anything that reaches `main` outside a release (hotfix, pin bot) is
+  forward-ported to `staging` before the next release; the release check
+  blocks the release until then (the `forward-ported` label).
+- One writer per branch. Land with `gh pr merge <n> --auto`, which joins
+  the merge queue; every workflow whose check is required must also
+  trigger on `merge_group:`. Treat GitHub 5xx and "merge already in
+  progress" as a wait, not a failure.
+- Shared workflows are pinned estate-wide, every repo at the same commit:
+  `nyuchi/.github/.github/workflows/<workflow>.yml@<40-hex sha>  # vX.Y.Z`
+  (two spaces before `#`); Dependabot raises the pin after each release.
+  Never `@main`, never a bare SHA without its tag comment.
+- Advisory waivers are org-level only (`AUDIT_ALLOW_GHSAS` in
+  `nyuchi/.github`), each with a reason and a review date; a repo cannot
+  waive its own advisory.
+
+## Checks that gate every pull request
+
+- `org-lint.yml` in this repo is required on every PR in the org.
+- The enterprise rulesets also run `nyuchi/.github`'s release version check,
+  dependency review and Semgrep on every PR into `staging` and `main`.
+- Every workflow whose check is required must also trigger on `merge_group:`.
+- Never disable or weaken a check to get green; fix the cause or escalate.
+
 - Never link `docs.mzizi.dev` in new prose (it does not resolve); see
   `ORG_STANDARDS.md#writing-a-readme` for branding facts READMEs get wrong.

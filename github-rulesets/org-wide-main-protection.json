@@ -4,42 +4,82 @@
   "enforcement": "active",
   "conditions": {
     "ref_name": {
-      "include": ["~DEFAULT_BRANCH"],
-      "exclude": []
+      "exclude": [],
+      "include": ["refs/heads/staging", "~DEFAULT_BRANCH"]
     },
     "repository_name": {
+      "exclude": ["sandbox-*", "archive-*"],
       "include": ["~ALL"],
-      "exclude": ["sandbox-*", "archive-*"]
+      "protected": false
     }
   },
-  "bypass_actors": [],
+  "bypass_actors": [
+    {
+      "actor_id": null,
+      "actor_type": "OrganizationAdmin",
+      "bypass_mode": "always"
+    }
+  ],
   "rules": [
-    { "type": "deletion" },
-    { "type": "non_fast_forward" },
-    { "type": "required_linear_history" },
-    { "type": "required_signatures" },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": false,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          {
+            "context": "lint / actionlint"
+          },
+          {
+            "context": "lint / markdownlint"
+          },
+          {
+            "context": "lint / yamllint"
+          },
+          {
+            "context": "vite-plus / fmt"
+          },
+          {
+            "context": "vite-plus / check"
+          },
+          {
+            "context": "vite-plus / test"
+          },
+          {
+            "context": "vite-plus / build"
+          }
+        ]
+      }
+    },
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
     {
       "type": "pull_request",
       "parameters": {
         "required_approving_review_count": 0,
-        "dismiss_stale_reviews_on_push": true,
+        "dismiss_stale_reviews_on_push": false,
+        "required_reviewers": [],
         "require_code_owner_review": false,
         "require_last_push_approval": false,
         "required_review_thread_resolution": true,
-        "allowed_merge_methods": ["squash"]
+        "require_extra_approval_for_unattributed_changes": false,
+        "allowed_merge_methods": ["merge", "rebase", "squash"]
       }
     },
     {
-      "type": "required_status_checks",
+      "type": "workflows",
       "parameters": {
-        "strict_required_status_checks_policy": true,
         "do_not_enforce_on_create": false,
-        "required_status_checks": [
-          { "context": "lint / actionlint" },
-          { "context": "lint / JSON validity" },
-          { "context": "lint / prettier" },
-          { "context": "lint / markdownlint" },
-          { "context": "lint / yamllint" }
+        "workflows": [
+          {
+            "repository_id": 1343908267,
+            "path": ".github/workflows/org-lint.yml",
+            "ref": "refs/heads/main"
+          }
         ]
       }
     }

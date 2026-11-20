@@ -17,7 +17,9 @@
 #   green   success or skipped
 #
 # Where a check has run more than once, only its newest run counts, so a
-# re-run that turns green clears an earlier failure.
+# re-run that turns green clears an earlier failure. A run that has a
+# conclusion is finished, even if GitHub still shows its status as
+# in_progress (it can lag behind a job that has already completed).
 #
 # It passes only after two polls in a row find everything else green, so a
 # workflow that registers late is not missed. Anything still orange after
@@ -62,12 +64,18 @@ jobs:
             # Every run on the commit, then the newest per name: a re-run
             # (such as a title check re-run by an edit) lands in a new check
             # suite, and filter=latest keeps the old result in the old suite.
+            # "Workers Builds:*" is Cloudflare's dashboard git integration
+            # reporting as a check run (see the note in the statuses loop
+            # below); it is skipped for the same reason.
             runs=$(gh api --paginate \
               "repos/$REPO/commits/$SHA/check-runs?filter=all&per_page=100" \
-              --jq '.check_runs[] | select(.name != env.SELF)
+              --jq '.check_runs[]
+                    | select(.name != env.SELF)
+                    | select(.name | startswith("Workers Builds:") | not)
                     | {id, name, status, conclusion}' |
               jq -rs 'group_by(.name) | map(max_by(.id))[]
-                      | [.status, (.conclusion // "none"), .name] | @tsv')
+                      | [(if .conclusion then "completed" else .status end),
+                         (.conclusion // "none"), .name] | @tsv')
             statuses=$(gh api "repos/$REPO/commits/$SHA/status" \
               --jq '.statuses[] | [.state, .context] | @tsv')
 
@@ -79,6 +87,14 @@ jobs:
                 orange+=("$name ($status)")
                 continue
               fi
+              # CodeQL reports "neutral" (not failure) when default setup
+              # has nothing to analyse for a diff, such as this repo's
+              # workflow-only pull requests. A real CodeQL finding reports
+              # failure and still fails this gate; only the no-op is let
+              # through, and only by name and conclusion together.
+              if [ "$name" = "CodeQL" ] && [ "$conclusion" = "neutral" ]; then
+                continue
+              fi
               case "$conclusion" in
                 success | skipped) ;;
                 *) red+=("$name ($conclusion)") ;;
@@ -86,6 +102,18 @@ jobs:
             done <<< "$runs"
             while IFS=$'\t' read -r state context; do
               [ -n "$context" ] || continue
+              # "Workers Builds:" commit statuses come from the Cloudflare
+              # dashboard's git integration, not from this repository's CI.
+              # In nyuchi/nyuchi-platform that integration is a redundant
+              # second build path for nyuchi-console-backend (the repo's own
+              # console.yml deploys the Worker from main), and it fails in
+              # zero seconds on every pull request head, which wedged every
+              # merge behind this gate. It is ignored here until the
+              # integration is deleted or repaired; GitHub Actions check
+              # runs are unaffected.
+              case "$context" in
+                "Workers Builds:"*) continue ;;
+              esac
               case "$state" in
                 success) ;;
                 pending) orange+=("$context (status pending)") ;;

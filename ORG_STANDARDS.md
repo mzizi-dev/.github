@@ -100,7 +100,7 @@ rebase-only from 2026-09-12, and merge-only before that.**
 | `allow_merge_commit`          | false                                  | false              |
 | `allow_auto_merge`            | true                                   | true               |
 | `squash_merge_commit_message` | `COMMIT_MESSAGES` (PR title + commits) | —                  |
-| Merge queue                   | **SQUASH, on `main`** | none               |
+| Merge queue                   | **SQUASH, on `main`**                  | none               |
 | Require up to date            | **off**                                | strict             |
 | `delete_branch_on_merge`      | true                                   | true               |
 

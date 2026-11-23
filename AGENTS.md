@@ -59,8 +59,8 @@ their `llms.txt` files.
    serving. Requests have timeouts and size limits. Services shut down
    gracefully. `/health` is liveness and `/ready` checks each dependency. The
    version reported is the real release, never hard-coded.
-3. **Everything ships to production.** Releases go `staging` → `main` through
-   the merge queue. Deploys run on every push to `main`, with no variable
+3. **Everything ships to production.** Merges to `main` ship through the
+   merge queue. Deploys run on every push to `main`, with no variable
    gates. A missing secret fails loudly, never silently skips.
 4. **Never close a conflicting PR.** Resolve the conflict and keep every
    feature.
@@ -151,26 +151,20 @@ The lint configs at the root (`.yamllint.yaml`, `.markdownlint.jsonc`,
 
 ## Branches, releases and merging
 
-- Work branches off `staging` and PRs land in `staging`. Each merge into
-  `staging` is tagged the next patch (`staging-version.yml`); a release to
-  `main` tags the next minor. Both use `nyuchi/.github`'s versioning
-  policy, pinned by SHA. Never hand-edit a version to a major.
+- Trunk-based: `main` is the only long-lived branch. There is no `staging`
+  branch and no `staging` environment. Work branches off `main` and PRs
+  land in `main`; every merge is a release (see Versioning in
+  `nyuchi/.github`'s AGENTS.md). Never hand-edit a version to a major.
 - Branch prefixes: `feat/`, `fix/`, `docs/`, or `claude/` for agent work.
 - PR titles are Conventional Commits: lowercase, imperative subject, no
-  trailing period (a subject starting with an all-caps word fails).
-- Merges into `staging` are squash through the merge queue
+  trailing period (a subject starting with an all-caps word fails). The
+  title decides the bump: `feat:` is a minor, anything else a patch.
+- Merges into `main` are squash through the merge queue
   (`gh pr merge <n> --squash --auto`); the squash body keeps every commit
   message (`COMMIT_MESSAGES`). Updating a branch with its base is fine.
-- `staging` is promoted to `main` with a **merge commit**, never squash:
-  a merge commit keeps `main` at `staging` plus one merge, so the next
-  release cannot conflict and nothing diverges.
-- The default branch takes releases only: a PR into `main` must come from
-  `staging`, a `release/*` branch, or the registry pin bot
-  (`bot/registry-pin`). Everything else — features, fixes, Dependabot —
-  targets `staging`.
-- Anything that reaches `main` outside a release (hotfix, pin bot) is
-  forward-ported to `staging` before the next release; the release check
-  blocks the release until then (the `forward-ported` label).
+  No bypass: every PR needs green checks before it merges.
+- Features, fixes and Dependabot all target `main`. A fix for a released
+  version is a normal PR into `main`.
 - One writer per branch. Land with `gh pr merge <n> --auto`, which joins
   the merge queue; every workflow whose check is required must also
   trigger on `merge_group:`. Treat GitHub 5xx and "merge already in
@@ -187,7 +181,7 @@ The lint configs at the root (`.yamllint.yaml`, `.markdownlint.jsonc`,
 
 - `org-lint.yml` in this repo is required on every PR in the org.
 - The enterprise rulesets also run `nyuchi/.github`'s release version check,
-  dependency review and Semgrep on every PR into `staging` and `main`.
+  dependency review and Semgrep on every PR into `main`.
 - Every workflow whose check is required must also trigger on `merge_group:`.
 - Never disable or weaken a check to get green; fix the cause or escalate.
 

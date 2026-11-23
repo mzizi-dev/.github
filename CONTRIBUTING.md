@@ -17,7 +17,7 @@ project depends on"_) is preserved:
 | Squash commit message | PR title + commit details (COMMIT_MESSAGES) |
 | Allow rebase merging  | **no**                                      |
 | Allow merge commits   | **no**                                      |
-| Merge queue           | SQUASH, on `staging` and `main`             |
+| Merge queue           | SQUASH, on `main`                           |
 
 So: **your commit messages land on `main` in the squash commit's body, in
 order, and stay there.** That changes how you should work.

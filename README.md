@@ -61,7 +61,7 @@ allow_rebase_merge   false      (was: true)
 allow_merge_commit   false      (unchanged)
 allow_auto_merge     true       (unchanged)
 squash message       PR title + commit details (COMMIT_MESSAGES)
-merge queue          SQUASH, on staging and main
+merge queue          SQUASH, on main
 ```
 
 ```sh

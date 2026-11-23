@@ -13,7 +13,7 @@ first are [The merge convention](#the-merge-convention) and
 > With the owner's approval, every repository moved from rebase-only to
 > squash merging through a GitHub merge queue: `allow_squash_merge` true,
 > rebase and merge commits off, squash message = PR title + commit details
-> (`COMMIT_MESSAGES`), a SQUASH merge queue on `staging` and `main`, "require
+> (`COMMIT_MESSAGES`), a SQUASH merge queue on `main`, "require
 > branches to be up to date" off, auto-merge on, merged branches deleted.
 > Land with `gh pr merge <n> --squash --auto`. [The merge
 > convention](#the-merge-convention) and the settings table are updated; the
@@ -100,7 +100,7 @@ rebase-only from 2026-09-12, and merge-only before that.**
 | `allow_merge_commit`          | false                                  | false              |
 | `allow_auto_merge`            | true                                   | true               |
 | `squash_merge_commit_message` | `COMMIT_MESSAGES` (PR title + commits) | —                  |
-| Merge queue                   | **SQUASH, on `staging` and `main`**    | none               |
+| Merge queue                   | **SQUASH, on `main`**                  | none               |
 | Require up to date            | **off**                                | strict             |
 | `delete_branch_on_merge`      | true                                   | true               |
 

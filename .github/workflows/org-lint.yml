@@ -37,7 +37,7 @@ permissions:
 
 jobs:
   lint:
-    uses: nyuchi/.github/.github/workflows/reusable-lint.yml@f3a558a4e5e50237bf5b405d04c953e61f1b9a61  # v0.21.0
+    uses: nyuchi/.github/.github/workflows/reusable-lint.yml@c7109e22b4f225f9355be6bf3f1ab319cd168f64  # v0.35.0
     with:
       prettier: false
       json-validity: false
